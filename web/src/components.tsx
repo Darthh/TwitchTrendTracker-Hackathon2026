@@ -24,16 +24,19 @@ export function Link({
   to,
   children,
   className = '',
+  label,
 }: {
   to: string;
   children: ReactNode;
   className?: string;
+  label?: string;
 }) {
   const { navigate } = useApp();
   return (
     <a
       href={to}
       className={className}
+      aria-label={label}
       onClick={(e) => {
         if (!e.ctrlKey && !e.metaKey) {
           e.preventDefault();

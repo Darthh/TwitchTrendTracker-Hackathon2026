@@ -1,25 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Activity,
-  ArrowLeftToLine,
   ArrowRight,
   ArrowUpRight,
-  Bell,
-  ChevronRight,
-  Compass,
-  FileText,
-  Gamepad2,
-  Info,
   Menu,
+  MoreVertical,
   Moon,
   Search,
   Shield,
-  Sparkles,
-  Star,
   Sun,
-  Tags,
   Users,
-  Video,
   X,
 } from 'lucide-react';
 import type { Dashboard, Range } from '../../src/shared/types';
@@ -27,6 +16,7 @@ import { api, compact } from './lib';
 import { AppContext, useApp } from './context';
 import { Change, Link, Logo, Modal } from './components';
 import { Pulse } from './Pulse';
+import { Sidebar, BrowseNavigation } from './Navigation';
 import {
   About,
   Alerts,
@@ -175,20 +165,6 @@ export function App() {
         <Overlay login={decodeURIComponent(path.split('/')[2] ?? '')} />
       </AppContext>
     );
-  const navigation = [
-    { name: 'Pulse', path: '/', icon: Activity },
-    { name: 'Categories', path: '/categories', icon: Gamepad2 },
-    { name: 'Streamers', path: '/streamers', icon: Users },
-    { name: 'Keywords & tags', path: '/keywords', icon: Tags },
-    { name: 'Opportunity', path: '/opportunity', icon: Compass },
-  ];
-  const workspace = [
-    { name: 'Ask Upswing', path: '/ask', icon: Sparkles },
-    { name: 'Reports', path: '/reports', icon: FileText },
-    { name: 'Alerts', path: '/alerts', icon: Bell },
-    { name: 'My Channel', path: '/channel', icon: Video },
-  ];
-  const match = (p: string) => (p === '/' ? path === '/' : path.startsWith(p));
   const results = query.trim()
     ? [
         ...data.games
@@ -199,7 +175,7 @@ export function App() {
           .map((s) => ({ name: s.name, type: 'Streamer', to: `/streamers/${s.login}` })),
       ].slice(0, 7)
     : [];
-  let page = <Pulse filter={filter} />;
+  let page = <Pulse filter={filter} setFilter={setFilter} />;
   if (path === '/categories') page = <Categories />;
   else if (path.startsWith('/categories/')) page = <CategoryDetail id={path.split('/')[2]} />;
   else if (path.startsWith('/streamers')) page = <Streamers login={path.split('/')[2]} />;
@@ -231,38 +207,47 @@ export function App() {
             <button
               className="icon-button mobile-menu"
               aria-label="Open navigation"
+              aria-expanded={sidebar}
+              aria-controls="discovery-sidebar"
               onClick={() => setSidebar(!sidebar)}
             >
               <Menu size={21} />
             </button>
-            <Link to="/" className="brand-link">
+            <Link to="/" className="brand-link" label="Upswing home">
               <Logo />
             </Link>
-            <span className="beta-label">beta</span>
+            <Link to="/categories" className="topbar-browse">
+              Browse
+            </Link>
+            <details className="topbar-more">
+              <summary aria-label="More navigation">
+                <MoreVertical size={20} />
+              </summary>
+              <div>
+                <Link to="/about/data">About the data</Link>
+                <Link to="/styleguide">Styleguide</Link>
+              </div>
+            </details>
           </div>
           <div className="topbar-center">
-            <div className="range-toggle" aria-label="Analysis range">
-              {(['week', 'month'] as Range[]).map((r) => (
-                <button
-                  key={r}
-                  aria-pressed={range === r}
-                  className={range === r ? 'active' : ''}
-                  onClick={() => setRange(r)}
-                >
-                  {r === 'week' ? 'Week' : 'Month'}
-                </button>
-              ))}
-            </div>
             <div className="global-search">
-              <Search size={16} />
               <input
                 ref={searchRef}
                 placeholder="Search categories, streamers…"
                 aria-label="Search categories and streamers"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && results[0]) navigate(results[0].to);
+                }}
               />
-              <kbd>Ctrl K</kbd>
+              <button
+                className="search-submit"
+                aria-label="Search"
+                onClick={() => (results[0] ? navigate(results[0].to) : searchRef.current?.focus())}
+              >
+                <Search size={20} />
+              </button>
               {query && (
                 <div className="search-results">
                   {results.length ? (
@@ -280,10 +265,6 @@ export function App() {
             </div>
           </div>
           <div className="topbar-actions">
-            <span className={`demo-status ${data.source === 'synthetic' ? '' : 'is-live'}`}>
-              <i />
-              {data.source === 'synthetic' ? 'Demo' : 'Live'}
-            </span>
             <button
               className="icon-button theme-button"
               aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
@@ -296,121 +277,19 @@ export function App() {
             </button>
           </div>
         </header>
-        <aside className={`sidebar ${sidebar ? 'mobile-open' : ''}`}>
-          <div className="sidebar-heading">
-            <span>Discover</span>
-            <button
-              className="icon-button"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              onClick={() => setCollapsed(!collapsed)}
-            >
-              <ArrowLeftToLine size={16} />
-            </button>
-          </div>
-          <nav aria-label="Main navigation">
-            {navigation.map((n) => (
-              <Link key={n.path} to={n.path} className={`nav-item ${match(n.path) ? 'active' : ''}`}>
-                <n.icon size={19} />
-                <span>{n.name}</span>
-                {n.name === 'Opportunity' && <span className="nav-new">For you</span>}
-              </Link>
-            ))}
-          </nav>
-          <div className="sidebar-divider" />
-          <div className="sidebar-heading">
-            <span>Your workspace</span>
-          </div>
-          <nav aria-label="Workspace">
-            {workspace.map((n) => (
-              <Link
-                key={n.path}
-                to={n.path}
-                className={`nav-item ${match(n.path) ? 'active' : ''} ${n.name === 'Ask Upswing' ? 'ask-nav' : ''}`}
-              >
-                <n.icon size={18} />
-                <span>{n.name}</span>
-                {n.name === 'Ask Upswing' && <span className="ai-label">AI</span>}
-              </Link>
-            ))}
-          </nav>
-          <div className="sidebar-divider" />
-          <div className="sidebar-heading">
-            <span>Rising streamers</span>
-            <span className="tiny-live-dot" />
-          </div>
-          <div className="sidebar-streamers">
-            {data.streamers.slice(0, 5).map((s) => (
-              <Link key={s.id} to={`/streamers/${s.login}`} className="sidebar-streamer">
-                <span className="avatar" style={{ color: s.color, background: `${s.color}22` }}>
-                  {s.name.slice(0, 2).toUpperCase()}
-                </span>
-                <span className="sidebar-streamer-text">
-                  <strong>{s.name}</strong>
-                  <small>{data.games.find((g) => g.id === s.gameId)?.name}</small>
-                </span>
-                <span className="sidebar-gain">↗ {Math.round((s.metric.deltaPct ?? 0) * 100)}%</span>
-              </Link>
-            ))}
-          </div>
-          <Link to="/streamers" className="sidebar-more">
-            Discover more <ChevronRight size={13} />
-          </Link>
-          {watchlist.length > 0 && (
-            <>
-              <div className="sidebar-heading watchlist-title">
-                <span>Your watchlist</span>
-                <Star size={13} />
-              </div>
-              {data.games
-                .filter((g) => watchlist.includes(g.id))
-                .map((g) => (
-                  <Link className="watchlist-item" key={g.id} to={`/categories/${g.id}`}>
-                    <i style={{ background: g.color }} />
-                    <span>{g.name}</span>
-                    <Change value={g.metric.deltaPct} subtle />
-                  </Link>
-                ))}
-            </>
-          )}
-          <div className="sidebar-bottom">
-            <div className="demo-safe">
-              <Shield size={16} />
-              <span>Demo-safe visuals</span>
-              <button
-                role="switch"
-                aria-checked={safe}
-                aria-label="Demo-safe visuals"
-                className={`switch ${safe ? 'on' : ''}`}
-                onClick={() => setSafe(!safe)}
-              >
-                <i />
-              </button>
-            </div>
-            <Link className="sidebar-about" to="/about/data">
-              <Info size={15} /> About the data <ArrowUpRight size={12} />
-            </Link>
-            <p>Built for your next big thing.</p>
-          </div>
-        </aside>
+        <Sidebar
+          path={path}
+          mobileOpen={sidebar}
+          collapsed={collapsed}
+          onCollapse={() => setCollapsed(!collapsed)}
+          safe={safe}
+          setSafe={setSafe}
+        />
         {sidebar && (
           <button className="sidebar-scrim" aria-label="Close navigation" onClick={() => setSidebar(false)} />
         )}
         <div className="main-shell">
-          {path === '/' && (
-            <div className="discovery-bar">
-              <nav aria-label="Pulse filters">
-                {['For you', 'Rising', 'Falling', 'New & taking off', 'Following'].map((f) => (
-                  <button key={f} className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
-                    {f === 'For you' && <Sparkles size={13} />} {f}
-                  </button>
-                ))}
-              </nav>
-              <span>
-                <span className="small-dot" />
-                {data.source === 'synthetic' ? 'Synthetic sample · Oct 21–27, 2026' : 'Updates every poll'}
-              </span>
-            </div>
-          )}
+          <BrowseNavigation path={path} setRange={setRange} />
           <main id="main-content" className="main-content">
             {error && <div className="error-banner">{error}</div>}
             {page}

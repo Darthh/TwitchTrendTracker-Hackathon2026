@@ -1,137 +1,263 @@
-# Upswing
+<p align="center">
+  <img src="docs/assets/upswing-banner.svg" alt="Upswing — See what's taking off on Twitch, and why." width="720">
+</p>
 
-**See what’s taking off on Twitch, and why.**
+<h1 align="center">Upswing</h1>
 
-Upswing is a trend radar for streamers: Week/Month comparisons, visual trend cards, a category market map, opportunities at your audience size, evidence-based explanations, and an in-app analyst. Connect your own Twitch channel to edit its title/category, enable command replies, and preview OBS overlays.
+<p align="center">
+  <strong>A trend radar for your next stream.</strong><br>
+  Follow the audience. Understand the movement. Find an opportunity at your size.
+</p>
 
-![Upswing Pulse, synthetic demo data](docs/screenshots/pulse-desktop.png)
+<p align="center">
+  <a href="https://github.com/Darthh/TwitchTrendTracker-Hackathon2026/actions/workflows/check.yml"><img src="https://github.com/Darthh/TwitchTrendTracker-Hackathon2026/actions/workflows/check.yml/badge.svg" alt="Check workflow"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-9147ff.svg" alt="MIT license"></a>
+  <a href="#getting-started"><img src="https://img.shields.io/badge/Node.js-22%2B-339933.svg" alt="Node.js 22 or newer"></a>
+  <a href="#demo-walkthrough"><img src="https://img.shields.io/badge/demo-synthetic%20data-bf94ff.svg" alt="Demo uses synthetic data"></a>
+</p>
 
-## Try the keyless demo
+Built for the 2026 hackathon, Upswing combines a Twitch-inspired directory with Week/Month analytics, shareable trend cards, an opportunity map, and an in-app analyst. A single Node service serves the interface, API, SQLite database, and collection jobs.
 
-Node **22+** (verified on Node 24), npm, and Git are required.
+**Status: locally verified hackathon prototype.** The keyless demo uses deterministic **synthetic observations** and a labeled **Rules analyst**. Live Twitch collection, OAuth, own-channel actions, and an optional isolated Codex runtime are implemented integration paths, but have not been exercised against authorized live accounts in this project session. No public deployment is claimed. See [implementation status](docs/STATUS.md) for the exact evidence and remaining work.
 
-```sh
-git clone https://github.com/Darthh/TwitchTrendTracker-Hackathon2026.git && cd TwitchTrendTracker-Hackathon2026
-npm install
-npm run demo
-```
+<p align="center">
+  <img src="docs/screenshots/categories-desktop.png" alt="Upswing's dark category directory with original illustrations and clearly labeled synthetic sample data" width="1100">
+</p>
 
-Open **http://localhost:3000**. `npm run demo` builds the client and starts one Node service. It creates a deterministic 64-day **synthetic** fixture database at `data/demo.db`; it requires no accounts, API keys, paid services, or external images. The fixture manifest is committed in `data/sample/manifest.json`. These are fictional observations, not real Twitch history, and the demo analyst is explicitly labeled **Rules analyst**, not cached Codex. Twitch write actions and OAuth are disabled in demo mode.
+## Contents
 
-Use Week/Month in the top bar; browse category details; change your size in Opportunity; ask a suggested question; try Title Lab; backtest and approve a threshold alert; send `!trending` in My Channel’s **mock chat**. Trend-card download produces a 1080 × 1350 PNG. Light/dark theme, watchlists and demo-safe visuals persist locally.
+- [Why Upswing exists](#why-upswing-exists)
+- [What the project implements](#what-the-project-implements)
+- [Architecture and trust boundaries](#architecture-and-trust-boundaries)
+- [How a trend becomes a decision](#how-a-trend-becomes-a-decision)
+- [Metrics and evidence](#metrics-and-evidence)
+- [Dashboard and API](#dashboard-and-api)
+- [Technology and repository map](#technology-and-repository-map)
+- [Credentials and configuration](#credentials-and-configuration)
+- [Getting started](#getting-started)
+- [Verification and design evidence](#verification-and-design-evidence)
+- [Deployment](#deployment)
+- [Demo walkthrough](#demo-walkthrough)
+- [Commands and maintenance](#commands-and-maintenance)
+- [Troubleshooting](#troubleshooting)
+- [Limitations and live verification](#limitations-and-live-verification)
+- [How Codex was used](#how-codex-was-used)
+- [Contributing and license](#contributing-and-license)
 
-## Live setup
+## Why Upswing exists
 
-1. Register an app in [Twitch Developer Console](https://dev.twitch.tv/console/apps). Set its OAuth redirect to `http://localhost:3000/auth/twitch/callback` for local use. Use the same origin in `PUBLIC_URL` and your browser.
-2. Copy `.env.example` to `.env`. Set your client ID and secret. Generate a fresh 32-byte hex value for **each** of `TOKEN_ENC_KEY` and `SESSION_SECRET` with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Keep this file local.
-3. Run `npm run build` and `npm start`. With credentials and `WORKER=true`, the collector starts automatically. `npm run dev` uses Vite middleware/HMR in the same process.
-4. Run `npm run collect:once` to inspect a poll, then `npm run backfill:clips` for the top 300 categories across eight weeks. `npm run collect` is an alternative standalone worker; a database lease prevents concurrent global polls. On a separate web process use `WORKER=false`.
-5. Connect Twitch. Basic login requests no write scopes. Enable permissions from **My Channel** only when needed. Review the title/category diff or raid target before confirming. Chat replies are sent as the authenticated broadcaster; a separate bot-account flow is not implemented.
+A crowded category is not always a good category for a small channel. A rising viewer count can reflect one large broadcast, more channels going live, or a platform-wide change. A leaderboard alone does not explain which of those happened.
 
-Live data starts empty. Twitch does not supply historical concurrent audience data. Full Week comparisons require two covered weeks; Month requires two covered 30-day windows. Until then, supported partial comparisons are labeled with the actual baseline; otherwise change is unavailable. Keeping the collector running is your deployment responsibility.
+Upswing puts the comparison, its coverage, and its measured contributors alongside the ranking. Streamers can browse what changed, inspect why, and compare opportunities for their own audience size before acting.
 
-### Environment
+## What the project implements
 
-| Variable                                              | Purpose / default                                                                          |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`            | Live Helix collection and OAuth; server only                                               |
-| `TWITCH_REDIRECT_URI`                                 | `http://localhost:3000/auth/twitch/callback`                                               |
-| `TOKEN_ENC_KEY`                                       | 64 hex characters; AES-256-GCM key for tokens at rest                                      |
-| `SESSION_SECRET`                                      | At least 32 characters; signed httpOnly SameSite=Lax cookies                               |
-| `PUBLIC_URL`                                          | Canonical origin, default `http://localhost:3000`; mutation Origin checks use it           |
-| `PORT`, `HOST`                                        | `3000`, `127.0.0.1`; container sets HOST to `0.0.0.0`                                      |
-| `POLL_INTERVAL_MIN`, `WATCHED_POLL_SEC`               | Global poll every 10 minutes; connected-channel poll every 120 seconds                     |
-| `MIN_VIEWERS`, `MAX_PAGES`                            | Global pagination floor 15; cap 400 pages; sample coverage is not the entire platform      |
-| `DEEPSCAN_GAMES`                                      | 150; category scans distributed across the hour                                            |
-| `RAW_RETENTION_DAYS`                                  | 21; hourly/daily rollups remain                                                            |
-| `WORKER`                                              | `true`; `false` disables the collector in the web process                                  |
-| `CODEX_API_KEY`, `CODEX_MODEL`                        | Optional server-side Codex API key/model; no live calls by default                         |
-| `CODEX_LIVE`, `CODEX_ISOLATED`                        | Both must be `true` on an isolated Linux deployment to allow the SDK runner; default false |
-| `CODEX_MAX_RUNS_PER_HOUR`                             | Global limit 10; at most two live analyses concurrently; public route limit 12 per IP/hour |
-| `BOT_USERNAME`                                        | Reserved; current bot sends as the connected broadcaster                                   |
-| `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_WEB_SEARCH` | Reserved for optional outside-news context; not used in this build                         |
+| Capability                   | What you can do                                                                                   | Evidence boundary                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Pulse and trend cards        | Compare gaining categories, cooling categories, and rising streamers; download a 1080 × 1350 card | Week and Month only; demo results are synthetic                                                        |
+| Category directory           | Search, filter by genre, sort, follow categories, and switch between covers and a table           | Original geometric artwork; no copied game covers                                                      |
+| Category and streamer detail | Explore history, distribution, supported comparisons, contributor math, and observed best times   | Missing coverage stays missing; descriptive patterns are not causal claims                             |
+| Opportunity                  | Adjust audience size and compare estimated discoverability and demand                             | Requires supported comparisons and a deep scan; rank is an estimate                                    |
+| Keywords and Title Lab       | Inspect supported phrases and score draft titles for clarity                                      | Demo lift is synthetic; clarity scores do not predict growth                                           |
+| Ask Upswing                  | Ask a suggested question, stream progress, and inspect checked numeric findings                   | Keyless rules fallback; live Codex requires a separately isolated Linux runtime                        |
+| Reports and alerts           | Read stored rankings; backtest, review, and approve simple threshold alerts                       | Jobs run while the service is running; complex natural-language alert compilation is not included      |
+| My Channel and OBS           | Preview channel edits, mock chat replies, and transparent overlays                                | Live writes require incremental OAuth, same-origin checks, and explicit confirmation; disabled in demo |
 
-### Scopes
-
-| Enable from My Channel    | Requested scopes                    | Why                                                               |
-| ------------------------- | ----------------------------------- | ----------------------------------------------------------------- |
-| Basic login               | None                                | Public profile and a private app session                          |
-| Authorize channel editing | `channel:manage:broadcast`          | Apply title/category; server also accepts validated optional tags |
-| Authorize raids           | `channel:manage:raids`              | Raid only from the authenticated broadcaster                      |
-| Authorize chat            | `user:read:chat`, `user:write:chat` | EventSub command reads and chat replies as that broadcaster       |
-
-Permissions are incremental; previously granted scopes are retained on reauthorization. Tokens are refreshed server-side, encrypted at rest and never returned to the browser. Mutations require same-origin requests and explicit confirmation. Opt-out excludes the connected channel from named analytics, future collection and analyst snapshots; aggregate historical category totals remain anonymous.
-
-## Runtime analyst
-
-The implementation uses the installed [Codex TypeScript SDK](https://developers.openai.com/codex/sdk) and its inspected TypeScript definitions. It sends `runStreamed` progress through SSE and validates structured output with Zod. The SDK includes the Codex CLI dependency; see `npm ls @openai/codex`.
-
-Live execution is **disabled on Windows and by default everywhere**. Before enabling it, use a dedicated Linux container/host without unrelated secrets or host mounts, verify its sandbox supports deny-read filesystem rules, and validate it with your own API account. A boolean flag does not create OS/container isolation. This session did not exercise a paid live run or prove a deployed sandbox.
-
-The runner supplies a clean temporary HOME, scrubbed SDK environment, no inherited tool-shell environment, a named read-only filesystem profile that denies the root and grants only runtime libraries, the public analyst workspace and dependencies, disabled tool networking/web search, a 120-second deadline, and no approvals. Unsupported sandbox settings fail into the rules fallback. Do not relax sandbox settings to make a deployment pass.
-
-Only public tables enter `analyst/db/upswing-ro.db`. A SQLite in-memory projection is saved with the backup API and atomically installed; accounts, sessions, tokens and user prompts never enter the snapshot. SQL must be one bounded SELECT against an approved table, with no joins/subqueries/extensions/writes. A read-only worker is terminated on timeout. Every accepted numeric finding is queried again. The app constructs displayed numeric claims from verified result fields and withholds unchecked model narrative/charts.
-
-`npm run warm-codex -- --demo` warms eight deterministic **rules** answers. Live `npm run warm-codex` can cache real runs only after the isolated runtime is configured. No real Codex results are fabricated. Monday 9 AM Pacific and first-of-month 9 AM jobs can store reports while the server is running. Simple threshold alerts run hourly after approval; complex natural-language SQL compilation was cut.
+## Architecture and trust boundaries
 
 ```mermaid
 flowchart LR
   Twitch[Twitch Helix / IGDB] --> Collector[Rate-limited collector]
   Collector --> DB[(SQLite WAL)]
-  DB --> Metrics[Week / Month metrics + explanation rules]
+  DB --> Metrics[Coverage-aware Week / Month metrics]
   Metrics --> API[Fastify REST + SSE]
   API --> UI[React + ECharts]
-  DB --> Projection[Public-only projection + backup]
+  DB --> Projection[Public-only projection]
   Projection --> Snapshot[(Read-only analyst snapshot)]
-  UI --> Analyst[Ask Upswing]
-  Analyst --> SDK[Optional isolated Codex SDK]
-  SDK --> Snapshot
-  SDK --> Verify[SQL re-query + number verification]
+  UI --> Ask[Ask Upswing]
+  Ask --> Rules[Deterministic rules fallback]
+  Rules --> API
+  Ask --> Codex[Optional isolated Codex SDK]
+  Codex --> Snapshot
+  Codex --> Verify[SQL guard + numeric re-query]
   Verify --> API
-  Analyst --> Fallback[Deterministic rules fallback]
-  Fallback --> API
-  UI --> Confirm[OAuth + confirmation]
-  Confirm --> Actions[Own-channel edit / raid / bot]
+  UI --> Confirm[OAuth + reviewed confirmation]
+  Confirm --> Actions[Own-channel actions]
   Actions --> Twitch
 ```
 
-## Metrics
+| Boundary                   | Responsibility                                                                                                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Browser → API              | Untrusted titles, tags, and usernames render as text. Browser requests never receive stored Twitch tokens or server API keys.                                                                                |
+| Collection → metrics       | Covered polls, rollups, support thresholds, and explicit baseline labels determine which comparisons can be shown.                                                                                           |
+| Private database → analyst | A public-only SQLite projection excludes accounts, sessions, tokens, and user prompts. Opt-out invalidates public snapshots and caches.                                                                      |
+| Model → displayed finding  | Only bounded, approved SELECT queries run in a killable read-only worker. Numeric findings are queried again; unchecked narrative and charts are withheld.                                                   |
+| User → Twitch write        | Incremental scopes, authenticated broadcaster ownership, Origin checks, and a reviewed confirmation gate channel changes and raids.                                                                          |
+| Host → optional Codex      | Disabled by default and on Windows. An isolated Linux host, restrictive filesystem policy, scrubbed environment, disabled tool networking, and run limits are required. Flags alone do not create isolation. |
 
-- **Week / Month:** coverage-weighted hourly means over 7/30 days versus the preceding 7/30 days. Full comparisons require 90% coverage in both windows. Partial Week uses separate complete daily blocks, preferring matching weekday; partial Month uses separate first/last complete tracked weeks.
-- **Relative change:** `(1 + categoryChange) / (1 + sampledPlatformChange) − 1`. Both signed absolute and percentage changes are shown.
-- **Support:** category average ≥200 in both windows; channel baseline ≥50 and two broadcasts in each window; keyword ≥15 distinct channels.
-- **Breakout:** `log2(current / previous) × min(1, sessions / 3)`, current average ≥100. Raid patterns use +40% and +100 viewers; retained spikes require 30 minutes above 1.3× baseline with continuous observations.
-- **Opportunity:** percentile-weighted discoverability 35%, relative growth 25%, smaller-channel demand 25%, audience distribution 15%. Deep scans and supported comparisons are required. Directory rank is an estimate, not a promised search position.
-- **Why:** exact log supply/demand identity; measured channel contributions; an explicit unattributed remainder. The UI never invents external causes. Migration flow math exists with conservation tests; a user-facing Sankey was cut.
-- **Titles:** multilingual tokenization, commands, emoji, bigrams and within-channel median lift utilities. Live keyword lift is withheld without controls; sample lifts are synthetic. Title Lab scores clarity heuristically, not expected growth.
-- **Best time:** observed average viewers per channel by local day/hour, with missing cells left empty. This is descriptive demand/supply, not a causal recommendation.
+The runtime setup and operational details live in [the setup guide](docs/SETUP.md#runtime-analyst).
 
-## Commands and verification
+## How a trend becomes a decision
 
-| Command                                   | Behavior                                                              |
-| ----------------------------------------- | --------------------------------------------------------------------- |
-| `npm run check`                           | TypeScript, ESLint, Vitest                                            |
-| `npm run smoke`                           | In-process keyless API smoke, ranges, cached analyst, mutation guards |
-| `npm run report [-- --demo]`              | Week/Month ranking and a rules explanation; live mode starts empty    |
-| `npm run collect:once`, `npm run collect` | One real poll or continuous collection; credentials required          |
-| `npm run backfill:clips`                  | Eight weekly top-100 clip samples for up to 300 categories            |
-| `npm run bot`                             | Safe instructions; bot activation remains an explicit UI action       |
-| `npm run export-sample [-- --demo]`       | Public analytics only to ignored `data/export.json`                   |
-| `npm run import-sample`                   | Imports approved public tables from that reviewed local export        |
-| `npm run warm-codex [-- --demo]`          | Warms eight correctly labeled local analyst results                   |
+1. **Choose Week or Month.** Upswing compares the selected window with the preceding window and identifies the coverage available.
+2. **Browse a signal.** Pulse ranks supported movements; Categories provides genre shortcuts, search, sort, and a cover/table view.
+3. **Inspect the explanation.** Detail pages separate measured contributions from the unattributed remainder and show both absolute and percentage changes.
+4. **Check your audience size.** Opportunity estimates a category's discoverability using deep-scan evidence and smaller-channel demand.
+5. **Ask or save.** Use the analyst, follow a category, export a card, or backtest an alert. Review any live own-channel action before confirming it.
 
-Tests cover comparisons and seasonality, opportunity, tokenization, raid patterns, session closing, pagination duplicates, 429 retries, disappearance within covered polls, exact decomposition, leave-one-out, flow conservation, detector fixtures, SQL restrictions, wrong-number rejection, authenticated encryption, injection resistance, bot cooldowns and snapshot exclusion. See [implementation status](docs/STATUS.md) for exact evidence and remaining cuts.
+## Metrics and evidence
 
-## Hosting
+| Metric               | Rule                                                                                                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Week / Month         | Coverage-weighted hourly means over 7/30 days versus the preceding 7/30 days. Full comparisons require 90% coverage in both windows. Supported partial windows carry an explicit baseline label. |
+| Relative growth      | `(1 + category change) / (1 + sampled platform change) − 1`                                                                                                                                      |
+| Minimum support      | Category average ≥200 in both windows; channel baseline ≥50 with two broadcasts in each window; keyword support ≥15 distinct channels.                                                           |
+| Opportunity          | Discoverability 35%, relative growth 25%, smaller-channel demand 25%, audience distribution 15%; scan and comparison support are required.                                                       |
+| Explanation          | Exact log supply/demand identity, measured channel contributions, and an explicit unattributed remainder. External causes are not invented.                                                      |
+| Best time and titles | Descriptive day/hour demand and heuristic title clarity; neither is a promise of future growth.                                                                                                  |
 
-**Always-on service:** build the included Dockerfile, attach persistent volumes at `/app/data` and `/app/analyst/db`, set environment secrets in the host, `HOST=0.0.0.0`, and `PUBLIC_URL`/redirect URI to your HTTPS origin. Run one collector process. Railway, Render or Fly can host this pattern; no paid service was created or deployed by this implementation. The container recipe has not been run in this Windows session.
+The [full metric definitions](docs/METRICS.md) include breakout thresholds, retained-spike rules, partial comparison behavior, and keyword limitations. Twitch does not provide historical concurrent audience data: live history starts when your collector starts. Clip views are not substituted for that history.
 
-**Your PC + Cloudflare Tunnel:** keep `npm start` running and use your own tunnel to `http://localhost:3000`; update PUBLIC_URL and the Twitch redirect to the HTTPS tunnel hostname before connecting accounts. Use an always-on PC and stable tunnel if judges need access. Do not enable live Codex on this Windows host.
+## Dashboard and API
+
+| Screen                     | Route                                           | Purpose                                                         |
+| -------------------------- | ----------------------------------------------- | --------------------------------------------------------------- |
+| Pulse                      | `/`                                             | Trend cards, filters, and the current comparison                |
+| Browse                     | `/categories`, `/categories/:id`                | Category directory and detail                                   |
+| Streamers                  | `/streamers`, `/streamers/:login`               | Observed-pool rankings and channel detail                       |
+| Keywords / Opportunity     | `/keywords`, `/opportunity`                     | Title signals and audience-size exploration                     |
+| Analyst / Reports / Alerts | `/ask`, `/reports`, `/alerts`                   | Questions, saved rankings, and approved thresholds              |
+| My Channel                 | `/channel`                                      | Connection, permission requests, action previews, and mock chat |
+| OBS / Data / Style guide   | `/overlay/:login`, `/about/data`, `/styleguide` | Transparent overlay, source disclosure, and component reference |
+
+The API serves analytics through `/api/pulse`, `/api/games`, `/api/streamers/:login`, and related detail routes; `/admin/health` reports collection health. Analyst responses use server-sent events. Week/Month requests are validated server-side. See [the route implementation](src/server/app.ts) and [API smoke checks](scripts/smoke.ts) for the executable contracts.
+
+## Technology and repository map
+
+| Layer             | Technology                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
+| Interface         | React, TypeScript, Vite, locally bundled Inter, Lucide icons                                       |
+| Charts and export | ECharts, html-to-image                                                                             |
+| Service and jobs  | Fastify, TypeScript, Twitch Helix / IGDB adapters                                                  |
+| Storage           | better-sqlite3, SQLite WAL, hourly/daily rollups                                                   |
+| Optional analyst  | Codex TypeScript SDK, structured output validation, guarded SQL verification                       |
+| Verification      | Vitest, ESLint, TypeScript, in-process API smoke, browser checks, REA capture and image comparison |
+
+```text
+web/src/              React screens, charts, navigation, theme and layout
+src/server/           Fastify routes, OAuth and service startup
+src/                  Collection, metrics, storage, analyst and shared types
+scripts/              Collection, fixture, export and smoke commands
+data/sample/          Committed synthetic fixture manifest (not a live database)
+analyst/              Public analyst workspace and generated snapshot location
+docs/                 Setup, metric definitions, evidence, screenshots and demo notes
+.github/workflows/    CI checks and manually dispatched Codex review
+```
+
+## Credentials and configuration
+
+**The demo needs no accounts, keys, paid services, or external images.** For live mode, copy `.env.example` to `.env` and follow [live setup and operations](docs/SETUP.md).
+
+| Configuration                              | Placement                                  | Purpose                                              |
+| ------------------------------------------ | ------------------------------------------ | ---------------------------------------------------- |
+| `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` | Server environment                         | Live collection and OAuth                            |
+| `TOKEN_ENC_KEY`, `SESSION_SECRET`          | Server environment; separate random values | Encrypted tokens at rest and signed private sessions |
+| `PUBLIC_URL`, `TWITCH_REDIRECT_URI`        | Server environment                         | Canonical origin and matching OAuth callback         |
+| `WORKER`, polling and retention options    | Server environment                         | Collector ownership, cadence, and storage            |
+| `CODEX_API_KEY`, `CODEX_MODEL`             | Isolated server environment only           | Optional live analyst                                |
+| `CODEX_LIVE`, `CODEX_ISOLATED`             | Explicit opt-in after host validation      | Enable the guarded SDK path; false by default        |
+
+The [environment table and OAuth scope table](docs/SETUP.md#environment) document all options. `.env`, tokens, database files, and analyst snapshots are ignored and must stay out of commits. Chat currently sends as the connected broadcaster; a separate bot identity is not implemented.
+
+## Getting started
+
+Requirements: **Node 22+**, npm, and Git. Local verification used Node 24.16.0.
+
+```sh
+git clone https://github.com/Darthh/TwitchTrendTracker-Hackathon2026.git
+cd TwitchTrendTracker-Hackathon2026
+npm ci
+npm run demo
+```
+
+Open **http://localhost:3000**. The command builds the client and starts one Node service. First startup creates a deterministic 64-day synthetic dataset at `data/demo.db`, using [the fixture manifest](data/sample/manifest.json). OAuth and Twitch writes stay disabled in demo mode.
+
+For interface development, use `npx tsx watch src/server/index.ts --demo --dev` to keep the synthetic dataset and enable Vite HMR. `npm run dev` starts the live-mode development service, which remains empty until real observations exist. Build live mode with `npm run build` and start it with `npm start` after configuring your environment.
+
+## Verification and design evidence
+
+```sh
+npm run check    # TypeScript, ESLint, and Vitest
+npm run smoke    # In-process API contracts and write guards
+npm run build    # Production client bundle
+```
+
+The locally verified suite contains **50 tests** covering comparisons, coverage, opportunity, collection retries, decomposition, flow conservation, SQL restrictions, wrong-number rejection, encryption, snapshot exclusion, injection resistance, and bot cooldowns. Smoke checks verify both ranges, synthetic source labeling, analyst fallback, rejected writes, and empty live-mode behavior. Target-service CI and hosted deployment are separate evidence states; the badge above links to the actual workflow.
+
+The dark layout was refined using [REA](https://github.com/morluto/rea): a logged-out Twitch directory capture, owned-browser captures of Upswing before/after, and screenshot comparisons. Measurements guide the 50px header, 240px sidebar, 14px base text, 60px Browse title, purple shortcuts, and rectangular 3:4 covers. [The design audit](docs/design/twitch-style-audit.md) records evidence IDs, hashes, measured differences, reproduction inputs, and limitations. Pixel differences measure changed pixels, not semantic similarity or a design accuracy score.
+
+The README's centered banner, badges, contents, capability tables, and documentation structure follow the [AgentHandshake project](https://github.com/Darthh/StripexCreateOS-Hackathon-AgentHandshake), with Upswing's own branding and factual implementation status.
+
+## Deployment
+
+The included Dockerfile describes an always-on Node service. Persist `/app/data` and `/app/analyst/db`, set `HOST=0.0.0.0`, use your HTTPS origin for `PUBLIC_URL` and the OAuth redirect, and run one collector. A database lease prevents concurrent global polls. A local PC can also run the service behind your own stable tunnel.
+
+No hosting account, paid plan, public URL, or live deployment was created here. The Docker recipe and Linux analyst sandbox still require validation on their target host. See [hosting instructions](docs/SETUP.md#hosting).
+
+## Demo walkthrough
+
+1. Open Pulse and switch Week → Month. The time window and rankings update; the synthetic source label stays visible.
+2. Browse Categories, choose a genre or search, change sort order, and open a detail page.
+3. Follow a category, inspect its contributors, and change audience size in Opportunity.
+4. Ask a suggested question. Inspect the labeled Rules analyst answer and its numeric evidence.
+5. Try Title Lab, backtest and approve a threshold alert, then send `!trending` in My Channel's **mock chat**.
+6. Download a trend card; switch themes; preview the transparent OBS route. No live broadcast is required for this preview.
+
+[Demo script](docs/DEMO_SCRIPT.md) · [Submission draft](docs/DEVPOST.md) · [Screenshots](docs/screenshots/)
+
+## Commands and maintenance
+
+| Command                                           | Behavior                                                                           |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `npm run demo`                                    | Build and serve synthetic data without keys                                        |
+| `npm run check`, `npm run smoke`, `npm run build` | Local verification and production bundle                                           |
+| `npm run report -- --demo`                        | Week/Month ranking and rules explanation from fixtures                             |
+| `npm run collect:once`, `npm run collect`         | One live poll or continuous collection; credentials required                       |
+| `npm run backfill:clips`                          | Eight weekly top-100 clip samples for up to 300 categories                         |
+| `npm run warm-codex -- --demo`                    | Warm eight honestly labeled rules answers; live form requires the isolated runtime |
+| `npm run export-sample -- --demo`                 | Export only public analytics to ignored `data/export.json`                         |
+| `npm run import-sample`                           | Import approved public tables from a reviewed local export                         |
+| `npm run bot`                                     | Show safe setup instructions; activation remains an explicit UI action             |
+
+Keep the service running for Monday 9 AM Pacific and first-of-month 9 AM reports, and hourly checks of approved threshold alerts. Raw observations default to 21-day retention; rollups remain stored. [The operations guide](docs/SETUP.md) covers collector cadence and separate-worker configuration.
+
+## Troubleshooting
+
+| Symptom                          | Check                                                                                                               |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Live mode has no rankings        | History starts empty. Configure collection and wait for supported coverage; use `npm run demo` to explore fixtures. |
+| Week/Month change is unavailable | Both windows need adequate coverage and minimum support. The app withholds unsupported comparisons.                 |
+| Twitch connection is unavailable | Demo mode disables OAuth. In live mode, match your app callback, `PUBLIC_URL`, and browser origin.                  |
+| Analyst says Rules               | Expected without an enabled, validated isolated Linux runtime. It is not a cached live Codex answer.                |
+| A live action is rejected        | Check authentication, incremental scopes, same-origin requests, ownership, and the reviewed confirmation.           |
+| Port 3000 is occupied            | Stop your existing task-owned server or set `PORT` and matching `PUBLIC_URL` to a free port.                        |
+
+## Limitations and live verification
+
+The implementation deliberately omits candlesticks, arbitrary custom charts, full growth-plan feedback, complex natural-language alerts, migration Sankey, outside-news search, full raid-fit matching, and automatic change-impact attribution. Rankings describe the observed candidate pool, not every Twitch account. Opportunity is an estimate; title scores and best-time patterns are descriptive. See [the status document](docs/STATUS.md) for remaining depth.
+
+No live Twitch OAuth/refresh, collector request, bot subscription/reply, channel edit/raid, paid Codex run, deployed sandbox, OBS broadcast, hosted worker, video upload, or hackathon submission has been verified in this session. The demo and local browser/API checks do not establish those external outcomes.
 
 ## How Codex was used
 
-Build-time work in this thread created the application, mathematical and security tests, documentation, screenshots, local verification and Git delivery. The original brief is preserved verbatim in [docs/PROMPT.md](docs/PROMPT.md); [CODEX_LOG](docs/CODEX_LOG.md) records outcomes without inventing live evidence. No parallel agents were spawned. The manually dispatched review workflow passes its API key only to the Codex action, reviews a diff as untrusted text, and does not execute PR code with a job-level key.
+Codex built the application, metric and security checks, documentation, original artwork, local verification, and Git delivery. The [original brief](docs/PROMPT.md) is preserved verbatim; the [build log](docs/CODEX_LOG.md) records observed outcomes. No parallel agents were used. The manually dispatched review workflow limits the API key to the Codex action and treats the submitted diff as untrusted text.
 
-Runtime Codex is an implemented optional SDK path with streaming, caching and numeric verification; the delivered no-key experience uses labeled rules. Optional features that were cut include arbitrary custom charts, full growth-plan feedback, complex alert compilation, raid fit by language/category, automatic 30-minute change-impact attribution, candlesticks, migration Sankey, and outside news search. No live Twitch write, OAuth account connection, real collection, paid Codex invocation, public deployment, submission or video upload was performed. [DEMO_SCRIPT](docs/DEMO_SCRIPT.md) and [DEVPOST](docs/DEVPOST.md) distinguish the working demo from footage still needed on an authorized test channel.
+Runtime Codex is a separate, optional SDK path with SSE progress, caching, and numeric verification. The default keyless experience uses deterministic rules and says so.
 
-Upswing is independent and is not affiliated with or endorsed by Twitch. Public metadata enrichment uses [IGDB](https://www.igdb.com/). All included illustrations are original geometric SVGs, not copied game covers or Twitch brand assets. MIT license.
+## Contributing and license
+
+Read [AGENTS.md](AGENTS.md), keep evidence boundaries and synthetic labels intact, and run `npm run check`, `npm run smoke`, and `npm run build` before submitting a change. Never commit credentials or local databases. Changes to live actions must preserve the authorization and confirmation gates.
+
+Upswing is independent and is not affiliated with or endorsed by Twitch. Public metadata enrichment uses [IGDB](https://www.igdb.com/). Included covers and branding are original SVG illustrations; Twitch's CSS, fonts, logos, and game art are not bundled.
+
+Licensed under the [MIT License](LICENSE).

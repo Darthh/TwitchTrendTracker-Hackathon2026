@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   ArrowLeft,
+  Compass,
+  Crosshair,
+  Ghost,
+  Paintbrush,
+  Search,
   ArrowRight,
   ArrowUpRight,
   Check,
@@ -55,36 +60,57 @@ export function Categories() {
           : b.metric.value - a.metric.value,
     );
   return (
-    <>
+    <div className="browse-page">
       <PageHeading
-        title="Find your corner of Twitch."
+        title="Browse"
         description="Follow the audience. Discover what’s moving in every category."
       />
-      <div className="toolbar">
-        <div className="filter-pills">
-          {['All categories', 'Horror', 'Shooter', 'Community', 'Creative'].map((g) => (
-            <button key={g} className={`pill ${genre === g ? 'active' : ''}`} onClick={() => setGenre(g)}>
-              {g}
-            </button>
-          ))}
-        </div>
+      <div className="category-shortcuts" aria-label="Category genres">
+        {[
+          { label: 'All categories', icon: Compass },
+          { label: 'Horror', icon: Ghost },
+          { label: 'Shooter', icon: Crosshair },
+          { label: 'Community', icon: Users },
+          { label: 'Creative', icon: Paintbrush },
+        ].map((item) => (
+          <button
+            key={item.label}
+            className={genre === item.label ? 'active' : ''}
+            aria-pressed={genre === item.label}
+            onClick={() => setGenre(item.label)}
+          >
+            <span>{item.label}</span>
+            <item.icon size={40} />
+          </button>
+        ))}
+      </div>
+      <div className="browse-tabs-row">
+        <nav className="tabs" aria-label="Browse content">
+          <Link to="/categories" className="active">
+            Categories
+          </Link>
+          <Link to="/streamers">Streamers</Link>
+        </nav>
         <div className="view-switch">
           <button className={grid ? 'active' : ''} onClick={() => setGrid(true)} aria-label="Grid view">
-            <Grid2X2 size={16} />
+            <Grid2X2 size={17} />
           </button>
           <button className={!grid ? 'active' : ''} onClick={() => setGrid(false)} aria-label="Table view">
-            <List size={16} />
+            <List size={17} />
           </button>
         </div>
       </div>
       <div className="toolbar category-toolbar">
-        <input
-          className="input"
-          placeholder="Search categories"
-          aria-label="Search categories"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+        <div className="category-search">
+          <Search size={18} />
+          <input
+            className="input"
+            placeholder="Search categories"
+            aria-label="Search categories"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
         <label className="select-label">
           Sort by{' '}
           <select value={sort} onChange={(e) => setSort(e.target.value)}>
@@ -146,7 +172,7 @@ export function Categories() {
           }}
         />
       </section>
-    </>
+    </div>
   );
 }
 function CategoryTable({ games }: { games: Game[] }) {
@@ -852,7 +878,7 @@ export function Keywords() {
           )}
         </section>
       </div>
-      <section className="panel section-space">
+      <section className="panel section-space table-scroll">
         <table>
           <thead>
             <tr>
@@ -1712,7 +1738,7 @@ export function Styleguide() {
         <p className="display-type">Find your next move.</p>
         <h2>A community worth finding.</h2>
         <p className="muted">A readable, dense interface. Inter. Tabular numbers. Your data, in context.</p>
-        <div className="inline gap">
+        <div className="inline gap component-examples">
           <button className="button primary">Primary action</button>
           <button className="button secondary">Secondary action</button>
           <Change value={0.387} />

@@ -29,6 +29,12 @@ Updated 2026-10-29, America/Los_Angeles.
 
 Fresh-checkout validation also passed: clean `npm ci`, all 50 tests, API smoke, production build, and actual `npm run demo` startup plus browser/API verification on a temporary port. See CODEX_LOG for the exact evidence. A fresh checkout is not a separate clean OS or hosted-deployment test.
 
+## 2026-10-29 layout and documentation refresh
+
+The interface now follows the measured Twitch dark directory proportions: 50px top bar, 240px sidebar, larger type, purple genre shortcuts and square-cornered 3:4 covers. Light mode and responsive navigation remain available, and synthetic-data labels stay visible at all checked widths. The README follows AgentHandshake's visual/documentation structure, with separate [setup](SETUP.md) and [metrics](METRICS.md) guides.
+
+REA 6.8.0 CLI captures and comparisons were run in owned temporary browsers; all three final captures are complete and report cleanup. [The design audit](design/twitch-style-audit.md) links the actual scenario inputs, manifest, exact pixel comparison outputs and limitations. This supersedes the initial pass's lack of REA evidence. Local browser checks and the existing test/build/smoke suite were rerun for this refresh; external integration status below is unchanged.
+
 ## Deliberate cuts and remaining product depth
 
 The supplied brief allows cuts to protect the core. This build omits candlesticks, arbitrary custom chart authoring/pinning, full weekly growth-plan scheduling/title/feedback loops (a labeled shortlist exists), complex natural-language alert SQL generation, complete raid fit by category/language, automatic 30-minute change-impact attribution, migration Sankey, and outside-news phrasing/search. The UI does not claim these exist. Live keywords show support counts but withhold controlled lift without enough controls. Streamer consistency currently describes covered hours above baseline, not session-level consistency; the UI labels it that way. Opportunity uses the latest category scan in the selected history, not a personalized Twitch sort. All-axis language segmentation, session timelines/title-history deep dives, a separate bot identity and real recorded-poll replay remain follow-up depth.

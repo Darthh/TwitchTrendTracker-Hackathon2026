@@ -3,7 +3,7 @@ import { useApp } from './context';
 import { CategoryTile, Change, Empty, Link, OpportunityPanel, SectionHead, TrendCard } from './components';
 import { Chart } from './Chart';
 import { compact, percent } from './lib';
-export function Pulse({ filter }: { filter: string }) {
+export function Pulse({ filter, setFilter }: { filter: string; setFilter: (filter: string) => void }) {
   const { data, range, ask, watchlist } = useApp();
   const rising = [...data.games]
     .filter((g) => (g.metric.deltaPct ?? 0) > 0)
@@ -32,15 +32,20 @@ export function Pulse({ filter }: { filter: string }) {
             <span className="pulse-dot" />
             Your radar for what’s next
           </div>
-          <h1>
-            The pulse of Twitch<span>.</span>
-          </h1>
-          <p>See what’s taking off. Understand why. Find your next move.</p>
+          <h1>Browse trends</h1>
+          <p>See what’s taking off on Twitch, and find your next move.</p>
         </div>
         <button className="button secondary ask-top" onClick={() => ask('What is taking off this week?')}>
           <Sparkles size={16} /> Ask Upswing <ArrowUpRight size={15} />
         </button>
       </div>
+      <nav className="tabs pulse-tabs" aria-label="Pulse filters">
+        {['For you', 'Rising', 'Falling', 'New & taking off', 'Following'].map((f) => (
+          <button key={f} className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
+            {f}
+          </button>
+        ))}
+      </nav>
       <div className="overview-strip">
         <div>
           <Users size={18} />

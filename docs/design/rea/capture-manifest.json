@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-29",
+  "rea_package": "rea-agents@6.8.0",
+  "cli_runtime": "node@26.12.1 via temporary npx environment",
+  "browser": "Google Chrome 156.0.8078.49; headless; owned temporary profile",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "theme": "dark",
+  "captures": [
+    {
+      "role": "Twitch logged-out dark reference",
+      "evidence_id": "ev_e9e212a0cff45e61c85834a5aa9943625881d298d4c880522c334837b666d3b7",
+      "operation": "capture_browser_scenario",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "screenshot": {
+        "sha256": "287fcdbf7e639e9009faa83f61f6a84668537021dd989bc913f1b3e8a60fc751",
+        "bytes": 1002777,
+        "media_type": "image/png"
+      },
+      "local_reference_file": "twitch-rea-dark.png"
+    },
+    {
+      "role": "Upswing before layout refresh",
+      "evidence_id": "ev_b8c4863c9196e787a23bd4f7554f9208ea95d3deda76b7d28eb9d997ed87a2be",
+      "operation": "capture_browser_scenario",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "screenshot": {
+        "sha256": "6083e68569aeb1df75a53e0cebe2a4da1568681f81e4cf0c6f99b5ea20ed2d94",
+        "bytes": 550652,
+        "media_type": "image/png"
+      },
+      "local_reference_file": "upswing-before.png"
+    },
+    {
+      "role": "Upswing after layout refresh",
+      "evidence_id": "ev_002996cd5e25630efead16daa9eb7feba18b826a6a54d261e1d2c434126d1f54",
+      "operation": "capture_browser_scenario",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "screenshot": {
+        "sha256": "3fc076b4e102ae066c3772bf87ed52bf1d9474a2880deda209f7113f01a45876",
+        "bytes": 515630,
+        "media_type": "image/png"
+      },
+      "local_reference_file": "upswing-after.png"
+    }
+  ],
+  "artifact_policy": "Third-party screenshots, DOM, and full raw envelopes stay local in ignored docs/design/reference. The Upswing after screenshot is committed as docs/screenshots/categories-desktop.png. This manifest omits screenshot base64 and does not certify source provenance."
+}

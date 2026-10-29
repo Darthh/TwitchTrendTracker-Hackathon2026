@@ -1,0 +1,52 @@
+{
+  "evidence_id": "ev_6db73cda516f793e9345aa51ddf6a8cd5f8385b248a8f9a8de2a7640ba6eb21c",
+  "subject": null,
+  "provider": {
+    "id": "rea-cdp-browser",
+    "name": "REA Chrome DevTools Protocol observation provider",
+    "version": "2"
+  },
+  "analysis_profile": null,
+  "predicate_type": "rea.web-screenshot-diff",
+  "operation": "compare_web_screenshots",
+  "parameters": {
+    "before_artifact_sha256": "287fcdbf7e639e9009faa83f61f6a84668537021dd989bc913f1b3e8a60fc751",
+    "after_artifact_sha256": "6083e68569aeb1df75a53e0cebe2a4da1568681f81e4cf0c6f99b5ea20ed2d94",
+    "channel_threshold": 0
+  },
+  "raw_result": null,
+  "normalized_result": {
+    "before": {
+      "width": 1440,
+      "height": 900
+    },
+    "after": {
+      "width": 1440,
+      "height": 900
+    },
+    "channel_threshold": 0,
+    "limitations": [
+      "Pixel comparison does not perform OCR, semantic layout analysis, or perceptual color correction.",
+      "Only non-interlaced 8-bit RGB and RGBA PNG screenshots are accepted.",
+      "PNG tRNS transparency is accepted only as a six-byte RGB color key; tRNS on RGBA or with another length is rejected."
+    ],
+    "status": "different",
+    "compared_pixels": 1296000,
+    "changed_pixels": 975284,
+    "changed_ratio": 0.7525339506172839,
+    "maximum_channel_delta": 255,
+    "mean_absolute_channel_delta": 42.81756905864197
+  },
+  "confidence": "observed",
+  "authority": "external-service",
+  "environment": null,
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Pixel comparison does not perform OCR, semantic layout analysis, or perceptual color correction.",
+    "Only non-interlaced 8-bit RGB and RGBA PNG screenshots are accepted.",
+    "PNG tRNS transparency is accepted only as a six-byte RGB color key; tRNS on RGBA or with another length is rejected."
+  ],
+  "relationship_coverage": null,
+  "locations": [],
+  "evidence_links": []
+}

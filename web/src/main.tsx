@@ -7,6 +7,7 @@ import '@fontsource/inter/latin-700.css';
 import '@fontsource/inter/latin-800.css';
 import './theme/tokens.css';
 import './style.css';
+import './twitch-layout.css';
 import { App } from './App';
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

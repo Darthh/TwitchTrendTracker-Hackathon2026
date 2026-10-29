@@ -16,10 +16,11 @@
   --red-bg: #41232c;
   --live: #eb0400;
   --focus: #bf94ff;
-  --nav-height: 60px;
-  --sidebar-width: 224px;
+  --nav-height: 50px;
+  --sidebar-width: 240px;
+  --sidebar-bg: #26262c;
   --radius: 8px;
-  --card-radius: 16px;
+  --card-radius: 8px;
   --font: 'Inter', sans-serif;
   --shadow: 0 12px 32px #0003;
 }
@@ -41,4 +42,5 @@
   --red-bg: #ffe8ee;
   --focus: #772ce8;
   --shadow: 0 12px 32px #00000009;
+  --sidebar-bg: #efeff1;
 }
