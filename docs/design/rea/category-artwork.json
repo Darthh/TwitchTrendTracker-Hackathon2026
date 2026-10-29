@@ -1,0 +1,217 @@
+{
+  "observed_on": "2026-10-29",
+  "tool": "rea-agents@6.8.0 capture-browser-scenario",
+  "delivery": "Remote images served by Twitch CDN; no cover image binaries are bundled. Only dimensions are normalized to 285x380.",
+  "captures": [
+    {
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "dom_sha256s": [
+        {
+          "step": "settled",
+          "sha256": "728d669d469a84ac53725ddf4bd2fdffa4e7c9d4c634c7fb680bcb13cedad5da"
+        }
+      ]
+    },
+    {
+      "evidence_id": "ev_7b2116b075c0ef4b397002a3dfd7adffb8f169ad76fe87be5fb6cf2798e49b48",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "dom_sha256s": [
+        {
+          "step": "scenario_start",
+          "sha256": "0991362188925d7fa30652ce86ed51e91f09c32a8cffed5629b5fabd3a88da4d"
+        },
+        {
+          "step": "loaded",
+          "sha256": "0991362188925d7fa30652ce86ed51e91f09c32a8cffed5629b5fabd3a88da4d"
+        },
+        {
+          "step": "cookie_notice",
+          "sha256": "8983eb07d41ce7dfc3dde6474afdc1e1b9ad51ead331a5f1fa87432bd5190321"
+        },
+        {
+          "step": "category_0",
+          "sha256": "05f85819c4b712a5c14cbe6ef1490adb28175f02b2685b5a816518943e43c62a"
+        },
+        {
+          "step": "cover_0",
+          "sha256": "ac323c4d2b63df0a19ec064d982fd5de4e7d7bb7b6757f583694936df53eafb8"
+        },
+        {
+          "step": "ready_0",
+          "sha256": "e756b51cdbacc7e03c2baf6a24dff2dc791a824801cde695b03da6b7e9352a3f"
+        },
+        {
+          "step": "category_1",
+          "sha256": "33c8a625f8163a8dd56da0d4a9b1fc0d1654a3a7c9444708ef20b56e428729b3"
+        },
+        {
+          "step": "cover_1",
+          "sha256": "5eec345c562f4c0b2bd6b631f9c99380c6df383a15f1be29fe6dfc66d0a1125b"
+        },
+        {
+          "step": "ready_1",
+          "sha256": "62811beb6d51a722edbba1c3270e0c4447bb07ce25938fab4809d2b157c9e2c4"
+        },
+        {
+          "step": "category_2",
+          "sha256": "89ce9dccf208de8bedb7032e9a0e02baf762473bdbeefcc315e0315e856209cf"
+        },
+        {
+          "step": "cover_2",
+          "sha256": "37d4a878b4ca011192f109057199131f7aacf871fa0e7645e5bcb60d0e716380"
+        },
+        {
+          "step": "ready_2",
+          "sha256": "d9bd267a178e4f5012564189068a205996b78db8a3b201f3d1b39740f518f7c9"
+        }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "name": "Just Chatting",
+      "page": "/directory/category/just-chatting",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/509658-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/509658-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 25276
+    },
+    {
+      "name": "League of Legends",
+      "page": "/directory/category/league-of-legends",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/21779-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/21779-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/png",
+      "cors": "*",
+      "bytes": 26800
+    },
+    {
+      "name": "Fortnite",
+      "page": "/directory/category/fortnite",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/33214-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/33214-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 22828
+    },
+    {
+      "name": "Minecraft",
+      "page": "/directory/category/minecraft",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/27471_IGDB-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/27471_IGDB-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 33798
+    },
+    {
+      "name": "World of Warcraft",
+      "page": "/directory/category/world-of-warcraft",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/18122-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/18122-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/png",
+      "cors": "*",
+      "bytes": 30894
+    },
+    {
+      "name": "VALORANT",
+      "page": "/directory/category/valorant",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/516575-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/516575-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/png",
+      "cors": "*",
+      "bytes": 27393
+    },
+    {
+      "name": "Dead by Daylight",
+      "page": "/directory/category/dead-by-daylight",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/491487-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/491487-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 29882
+    },
+    {
+      "name": "Art",
+      "page": "/directory/category/art",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/509660-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/509660-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 48693
+    },
+    {
+      "name": "Escape from Tarkov",
+      "page": "/directory/category/escape-from-tarkov",
+      "evidence_id": "ev_93a4bb024365ed2ee13a6b89ede1826d6d672a3fd3351a97f7120192fcd8ea45",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/491931_IGDB-285x380.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/491931_IGDB-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 26800
+    },
+    {
+      "name": "Hollow Knight: Silksong",
+      "page": "/directory/category/hollow-knight-silksong",
+      "evidence_id": "ev_7b2116b075c0ef4b397002a3dfd7adffb8f169ad76fe87be5fb6cf2798e49b48",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/511391_IGDB-144x192.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/511391_IGDB-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 32528
+    },
+    {
+      "name": "Phasmophobia",
+      "page": "/directory/category/phasmophobia",
+      "evidence_id": "ev_7b2116b075c0ef4b397002a3dfd7adffb8f169ad76fe87be5fb6cf2798e49b48",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/518184_IGDB-144x192.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/518184_IGDB-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "cors": "*",
+      "bytes": 19641
+    },
+    {
+      "name": "Talk Shows & Podcasts",
+      "page": "/directory/category/talk-shows-and-podcasts",
+      "evidence_id": "ev_7b2116b075c0ef4b397002a3dfd7adffb8f169ad76fe87be5fb6cf2798e49b48",
+      "observed_url": "https://static-cdn.jtvnw.net/ttv-boxart/417752-144x192.jpg",
+      "url": "https://static-cdn.jtvnw.net/ttv-boxart/417752-285x380.jpg",
+      "http_status": 200,
+      "content_type": "image/png",
+      "cors": "*",
+      "bytes": 29356
+    }
+  ]
+}

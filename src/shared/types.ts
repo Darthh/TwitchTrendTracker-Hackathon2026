@@ -23,6 +23,7 @@ export interface Game {
   genre: string;
   color: string;
   art: string;
+  boxArtUrl?: string | null;
   ageDays: number | null;
   metric: Metric;
   supplyMetric: Metric;
@@ -63,6 +64,24 @@ export interface Keyword {
   lift: number;
   iqr: [number, number];
   series: number[];
+}
+export type TermKind = 'keyword' | 'tag';
+export interface TermTrend {
+  term: string;
+  channels: number;
+  previousChannels: number;
+  deltaPct: number | null;
+  points: Point[];
+  categories: { gameId: string; channels: number }[];
+}
+export interface TermOverview {
+  kind: TermKind;
+  range: Range;
+  source: 'synthetic' | 'live';
+  terms: TermTrend[];
+  coverage: number;
+  truncated: boolean;
+  basis: string;
 }
 export interface Dashboard {
   range: Range;

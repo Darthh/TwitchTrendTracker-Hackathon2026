@@ -8,6 +8,7 @@ import '@fontsource/inter/latin-800.css';
 import './theme/tokens.css';
 import './style.css';
 import './twitch-layout.css';
+import './discovery-trends.css';
 import { App } from './App';
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

@@ -89,7 +89,7 @@ export function GameRow({ game, badge }: { game: Game; badge?: string }) {
   const { safe } = useApp();
   return (
     <Link className="rank-row" to={`/categories/${game.id}`}>
-      <Art small kind={game.art} name={game.name} color={game.color} safe={safe} />
+      <Art small kind={game.art} name={game.name} color={game.color} safe={safe} src={game.boxArtUrl} />
       <div className="rank-name">
         <strong>{game.name}</strong>
         <span>
@@ -198,7 +198,7 @@ export function CategoryTile({ game }: { game: Game }) {
   return (
     <article className="category-tile">
       <Link to={`/categories/${game.id}`} className="cover">
-        <Art kind={game.art} name={game.name} color={game.color} safe={safe} />
+        <Art kind={game.art} name={game.name} color={game.color} safe={safe} src={game.boxArtUrl} />
         <span className="cover-name">{game.name}</span>
         <Change value={game.metric.deltaPct} />
       </Link>

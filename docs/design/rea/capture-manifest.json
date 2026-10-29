@@ -64,5 +64,5 @@
       "local_reference_file": "upswing-after.png"
     }
   ],
-  "artifact_policy": "Third-party screenshots, DOM, and full raw envelopes stay local in ignored docs/design/reference. The Upswing after screenshot is committed as docs/screenshots/categories-desktop.png. This manifest omits screenshot base64 and does not certify source provenance."
+  "artifact_policy": "Third-party screenshots, DOM, and full raw envelopes stay local in ignored docs/design/reference. The Upswing after screenshot is committed as docs/screenshots/layout-refresh-2026-10-29.png. This manifest omits screenshot base64 and does not certify source provenance."
 }

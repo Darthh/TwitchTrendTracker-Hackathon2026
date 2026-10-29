@@ -1,0 +1,113 @@
+{
+  "browser": {
+    "mode": "launch",
+    "executable_path": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "headless": true
+  },
+  "start_url": {
+    "url": "https://www.twitch.tv/directory"
+  },
+  "environment": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "color_scheme": "dark",
+    "timezone": "America/Los_Angeles"
+  },
+  "actions": [
+    {
+      "step_id": "loaded",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "h1"
+      },
+      "state": "visible",
+      "timeout_ms": 30000
+    },
+    {
+      "step_id": "cookie_notice",
+      "action": "click",
+      "locator": {
+        "kind": "role",
+        "role": "button",
+        "name": "Proceed"
+      },
+      "timeout_ms": 15000
+    },
+    {
+      "step_id": "category_0",
+      "action": "goto",
+      "destination": {
+        "url": "https://www.twitch.tv/directory/category/hollow-knight-silksong"
+      },
+      "wait_until": "domcontentloaded"
+    },
+    {
+      "step_id": "cover_0",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "img[src*=\"ttv-boxart/\"]"
+      },
+      "state": "visible",
+      "timeout_ms": 20000
+    },
+    {
+      "step_id": "ready_0",
+      "action": "wait_for_timeout",
+      "duration_ms": 700
+    },
+    {
+      "step_id": "category_1",
+      "action": "goto",
+      "destination": {
+        "url": "https://www.twitch.tv/directory/category/phasmophobia"
+      },
+      "wait_until": "domcontentloaded"
+    },
+    {
+      "step_id": "cover_1",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "img[src*=\"ttv-boxart/\"]"
+      },
+      "state": "visible",
+      "timeout_ms": 20000
+    },
+    {
+      "step_id": "ready_1",
+      "action": "wait_for_timeout",
+      "duration_ms": 700
+    },
+    {
+      "step_id": "category_2",
+      "action": "goto",
+      "destination": {
+        "url": "https://www.twitch.tv/directory/category/talk-shows-and-podcasts"
+      },
+      "wait_until": "domcontentloaded"
+    },
+    {
+      "step_id": "cover_2",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "img[src*=\"ttv-boxart/\"]"
+      },
+      "state": "visible",
+      "timeout_ms": 20000
+    },
+    {
+      "step_id": "ready_2",
+      "action": "wait_for_timeout",
+      "duration_ms": 700
+    }
+  ],
+  "capture": {
+    "after_each_step": ["dom", "url"],
+    "at_end": ["screenshot", "dom", "url"]
+  }
+}

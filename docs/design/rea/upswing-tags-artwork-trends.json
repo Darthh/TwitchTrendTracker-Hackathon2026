@@ -1,0 +1,48 @@
+{
+  "browser": {
+    "mode": "launch",
+    "executable_path": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "headless": true
+  },
+  "start_url": {
+    "url": "http://localhost:3000/keywords"
+  },
+  "environment": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "color_scheme": "dark",
+    "timezone": "America/Los_Angeles"
+  },
+  "actions": [
+    {
+      "step_id": "loaded",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": ".term-choice:first-child"
+      },
+      "state": "visible",
+      "timeout_ms": 15000
+    },
+    {
+      "step_id": "select_tags",
+      "action": "click",
+      "locator": {
+        "kind": "role",
+        "role": "button",
+        "name": "Tags"
+      },
+      "timeout_ms": 15000
+    },
+    {
+      "step_id": "settled",
+      "action": "wait_for_timeout",
+      "duration_ms": 1000
+    }
+  ],
+  "capture": {
+    "at_end": ["screenshot", "dom", "accessibility", "url"]
+  }
+}

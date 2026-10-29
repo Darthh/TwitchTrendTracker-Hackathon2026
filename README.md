@@ -21,7 +21,7 @@ Built for the 2026 hackathon, Upswing combines a Twitch-inspired directory with 
 **Status: locally verified hackathon prototype.** The keyless demo uses deterministic **synthetic observations** and a labeled **Rules analyst**. Live Twitch collection, OAuth, own-channel actions, and an optional isolated Codex runtime are implemented integration paths, but have not been exercised against authorized live accounts in this project session. No public deployment is claimed. See [implementation status](docs/STATUS.md) for the exact evidence and remaining work.
 
 <p align="center">
-  <img src="docs/screenshots/categories-desktop.png" alt="Upswing's dark category directory with original illustrations and clearly labeled synthetic sample data" width="1100">
+  <img src="docs/screenshots/categories-directory.png" alt="Upswing's dark category directory with official Twitch covers and clearly labeled synthetic sample data" width="1100">
 </p>
 
 ## Contents
@@ -52,16 +52,16 @@ Upswing puts the comparison, its coverage, and its measured contributors alongsi
 
 ## What the project implements
 
-| Capability                   | What you can do                                                                                   | Evidence boundary                                                                                      |
-| ---------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Pulse and trend cards        | Compare gaining categories, cooling categories, and rising streamers; download a 1080 × 1350 card | Week and Month only; demo results are synthetic                                                        |
-| Category directory           | Search, filter by genre, sort, follow categories, and switch between covers and a table           | Original geometric artwork; no copied game covers                                                      |
-| Category and streamer detail | Explore history, distribution, supported comparisons, contributor math, and observed best times   | Missing coverage stays missing; descriptive patterns are not causal claims                             |
-| Opportunity                  | Adjust audience size and compare estimated discoverability and demand                             | Requires supported comparisons and a deep scan; rank is an estimate                                    |
-| Keywords and Title Lab       | Inspect supported phrases and score draft titles for clarity                                      | Demo lift is synthetic; clarity scores do not predict growth                                           |
-| Ask Upswing                  | Ask a suggested question, stream progress, and inspect checked numeric findings                   | Keyless rules fallback; live Codex requires a separately isolated Linux runtime                        |
-| Reports and alerts           | Read stored rankings; backtest, review, and approve simple threshold alerts                       | Jobs run while the service is running; complex natural-language alert compilation is not included      |
-| My Channel and OBS           | Preview channel edits, mock chat replies, and transparent overlays                                | Live writes require incremental OAuth, same-origin checks, and explicit confirmation; disabled in demo |
+| Capability                   | What you can do                                                                                                    | Evidence boundary                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Pulse and trend cards        | Compare gaining categories, cooling categories, and rising streamers; download a 1080 × 1350 card                  | Week and Month only; demo results are synthetic                                                        |
+| Category directory           | Search, filter by genre, sort, follow categories, and switch between covers and a table                            | Verified Twitch CDN artwork with an original SVG fallback                                              |
+| Category and streamer detail | Explore history, distribution, supported comparisons, contributor math, and observed best times                    | Missing coverage stays missing; descriptive patterns are not causal claims                             |
+| Opportunity                  | Adjust audience size and compare estimated discoverability and demand                                              | Requires supported comparisons and a deep scan; rank is an estimate                                    |
+| Keywords and Title Lab       | Select title phrases or tags, chart daily adoption, inspect related categories, and score draft titles for clarity | Demo lift is synthetic; clarity scores do not predict growth                                           |
+| Ask Upswing                  | Ask a suggested question, stream progress, and inspect checked numeric findings                                    | Keyless rules fallback; live Codex requires a separately isolated Linux runtime                        |
+| Reports and alerts           | Read stored rankings; backtest, review, and approve simple threshold alerts                                        | Jobs run while the service is running; complex natural-language alert compilation is not included      |
+| My Channel and OBS           | Preview channel edits, mock chat replies, and transparent overlays                                                 | Live writes require incremental OAuth, same-origin checks, and explicit confirmation; disabled in demo |
 
 ## Architecture and trust boundaries
 
@@ -116,7 +116,7 @@ The runtime setup and operational details live in [the setup guide](docs/SETUP.m
 | Explanation          | Exact log supply/demand identity, measured channel contributions, and an explicit unattributed remainder. External causes are not invented.                                                      |
 | Best time and titles | Descriptive day/hour demand and heuristic title clarity; neither is a promise of future growth.                                                                                                  |
 
-The [full metric definitions](docs/METRICS.md) include breakout thresholds, retained-spike rules, partial comparison behavior, and keyword limitations. Twitch does not provide historical concurrent audience data: live history starts when your collector starts. Clip views are not substituted for that history.
+The [full metric definitions](docs/METRICS.md) include breakout thresholds, retained-spike rules, partial comparison behavior, and keyword limitations. Term adoption counts distinct channels with observed metadata updates, not concurrent viewers. Comparisons require at least 15 prior channels and 90% observed-hour coverage in both windows; missing days stay blank. See [the term metric definition](docs/METRICS.md#title-and-tag-adoption). Twitch does not provide historical concurrent audience data: live history starts when your collector starts. Clip views are not substituted for that history.
 
 ## Dashboard and API
 
@@ -130,7 +130,7 @@ The [full metric definitions](docs/METRICS.md) include breakout thresholds, reta
 | My Channel                 | `/channel`                                      | Connection, permission requests, action previews, and mock chat |
 | OBS / Data / Style guide   | `/overlay/:login`, `/about/data`, `/styleguide` | Transparent overlay, source disclosure, and component reference |
 
-The API serves analytics through `/api/pulse`, `/api/games`, `/api/streamers/:login`, and related detail routes; `/admin/health` reports collection health. Analyst responses use server-sent events. Week/Month requests are validated server-side. See [the route implementation](src/server/app.ts) and [API smoke checks](scripts/smoke.ts) for the executable contracts.
+The API serves analytics through `/api/pulse`, `/api/games`, `/api/streamers/:login`, and related detail routes. `/api/terms?kind=keyword&range=week` supplies title-update trends; `kind=tag` and `range=month` select tags and the longer window. `/admin/health` reports collection health. Analyst responses use server-sent events. Week/Month requests are validated server-side. See [the route implementation](src/server/app.ts) and [API smoke checks](scripts/smoke.ts) for the executable contracts.
 
 ## Technology and repository map
 
@@ -156,7 +156,7 @@ docs/                 Setup, metric definitions, evidence, screenshots and demo 
 
 ## Credentials and configuration
 
-**The demo needs no accounts, keys, paid services, or external images.** For live mode, copy `.env.example` to `.env` and follow [live setup and operations](docs/SETUP.md).
+**The demo needs no accounts, API keys, or paid services.** Official category artwork loads from Twitch's CDN; original SVG illustrations are the fallback when images are unavailable, and demo-safe mode uses initials. For live mode, copy `.env.example` to `.env` and follow [live setup and operations](docs/SETUP.md).
 
 | Configuration                              | Placement                                  | Purpose                                              |
 | ------------------------------------------ | ------------------------------------------ | ---------------------------------------------------- |
@@ -192,9 +192,11 @@ npm run smoke    # In-process API contracts and write guards
 npm run build    # Production client bundle
 ```
 
-The locally verified suite contains **50 tests** covering comparisons, coverage, opportunity, collection retries, decomposition, flow conservation, SQL restrictions, wrong-number rejection, encryption, snapshot exclusion, injection resistance, and bot cooldowns. Smoke checks verify both ranges, synthetic source labeling, analyst fallback, rejected writes, and empty live-mode behavior. Target-service CI and hosted deployment are separate evidence states; the badge above links to the actual workflow.
+The locally verified suite contains **57 tests** covering comparisons, coverage, opportunity, collection retries, decomposition, flow conservation, SQL restrictions, wrong-number rejection, encryption, snapshot exclusion, injection resistance, bot cooldowns, term deduplication and coverage, opt-out exclusion, and artwork URL validation. Smoke checks verify both ranges, synthetic source labeling, analyst fallback, rejected writes, and empty live-mode behavior. Target-service CI and hosted deployment are separate evidence states; the badge above links to the actual workflow.
 
 The dark layout was refined using [REA](https://github.com/morluto/rea): a logged-out Twitch directory capture, owned-browser captures of Upswing before/after, and screenshot comparisons. Measurements guide the 50px header, 240px sidebar, 14px base text, 60px Browse title, purple shortcuts, and rectangular 3:4 covers. [The design audit](docs/design/twitch-style-audit.md) records evidence IDs, hashes, measured differences, reproduction inputs, and limitations. Pixel differences measure changed pixels, not semantic similarity or a design accuracy score.
+
+Official covers and interactive category/term charts were added in a follow-up using fresh REA captures. See [artwork and trend evidence](docs/design/category-artwork-and-trends.md) for the twelve verified covers, observation rules, reference-card adaptations, and local verification. The real artwork does not turn the synthetic analytics into live observations.
 
 The README's centered banner, badges, contents, capability tables, and documentation structure follow the [AgentHandshake project](https://github.com/Darthh/StripexCreateOS-Hackathon-AgentHandshake), with Upswing's own branding and factual implementation status.
 
@@ -207,8 +209,8 @@ No hosting account, paid plan, public URL, or live deployment was created here. 
 ## Demo walkthrough
 
 1. Open Pulse and switch Week → Month. The time window and rankings update; the synthetic source label stays visible.
-2. Browse Categories, choose a genre or search, change sort order, and open a detail page.
-3. Follow a category, inspect its contributors, and change audience size in Opportunity.
+2. Browse Categories to see the rising/falling charts and real cover thumbnails. Choose a genre or search to filter the charts and directory, then open a detail page.
+3. Open Keywords & tags, select a phrase, switch to Tags, and select a tag. The daily channel chart and related-category ranking update. Switch Week/Month to change the comparison, then try category watchlists or Opportunity.
 4. Ask a suggested question. Inspect the labeled Rules analyst answer and its numeric evidence.
 5. Try Title Lab, backtest and approve a threshold alert, then send `!trending` in My Channel's **mock chat**.
 6. Download a trend card; switch themes; preview the transparent OBS route. No live broadcast is required for this preview.
@@ -258,6 +260,6 @@ Runtime Codex is a separate, optional SDK path with SSE progress, caching, and n
 
 Read [AGENTS.md](AGENTS.md), keep evidence boundaries and synthetic labels intact, and run `npm run check`, `npm run smoke`, and `npm run build` before submitting a change. Never commit credentials or local databases. Changes to live actions must preserve the authorization and confirmation gates.
 
-Upswing is independent and is not affiliated with or endorsed by Twitch. Public metadata enrichment uses [IGDB](https://www.igdb.com/). Included covers and branding are original SVG illustrations; Twitch's CSS, fonts, logos, and game art are not bundled.
+Upswing is independent and is not affiliated with or endorsed by Twitch. Public metadata enrichment uses [IGDB](https://www.igdb.com/). Category covers load remotely from Twitch's CDN using [REA-verified artwork URLs](docs/design/rea/category-artwork.json); the cover artwork belongs to its respective owners and is not included in the MIT license for this code. Upswing branding and fallback illustrations are original. No Twitch CSS, proprietary fonts, logo files, or standalone cover image files are bundled.
 
 Licensed under the [MIT License](LICENSE).

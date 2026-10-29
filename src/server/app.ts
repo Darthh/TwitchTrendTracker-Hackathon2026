@@ -10,7 +10,8 @@ import { resolve } from 'node:path';
 import type { DB } from '../db/db.js';
 import { snapshot } from '../db/db.js';
 import { dashboard } from '../db/queries.js';
-import { seedDemo } from '../db/seed.js';
+import { seedDemo, DEMO_NOW } from '../db/seed.js';
+import { termOverview, invalidateTerms } from '../db/terms.js';
 import { explain } from '../why/index.js';
 import { config } from './config.js';
 import { accountFor, registerAuth, userToken, readyForAuth, type Account } from './auth.js';
@@ -22,8 +23,8 @@ import { Bot } from '../twitch/bot.js';
 import { EventSub } from '../twitch/eventsub.js';
 import { startCollector } from '../collector/poll.js';
 import { downsample } from '../metrics/index.js';
-import { DAY } from '../metrics/config.js';
-import type { Dashboard, Range } from '../shared/types.js';
+import { DAY, HOUR } from '../metrics/config.js';
+import type { Dashboard, Range, TermOverview } from '../shared/types.js';
 import { startJobs } from './jobs.js';
 const querySchema = z.object({
   range: z.enum(['week', 'month']).default('week'),
@@ -51,7 +52,7 @@ export async function createApp(
     if (!options.dev)
       reply.header(
         'Content-Security-Policy',
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://static-cdn.jtvnw.net/ttv-boxart/; font-src 'self'; connect-src 'self' https://static-cdn.jtvnw.net/ttv-boxart/; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
       );
     if (req.method === 'POST' && req.headers.origin !== new URL(config.PUBLIC_URL).origin)
       return reply.code(403).send({ error: 'This action must originate from the Upswing dashboard.' });
@@ -73,6 +74,7 @@ export async function createApp(
     });
   });
   const cache = new Map<string, { time: number; data: Dashboard }>();
+  const termCache = new Map<string, { time: number; data: TermOverview }>();
   const getData = (range: Range = 'week', size = 50) => {
     const key = `${range}:${size}`,
       existing = cache.get(key);
@@ -189,6 +191,20 @@ export async function createApp(
     return list.find((s) => s.login === login) ?? reply.code(404).send({ error: 'Streamer not found.' });
   });
   app.get('/api/keywords', (req) => getData(querySchema.parse(req.query).range).keywords);
+  app.get('/api/terms', (req) => {
+    const { kind, range } = z
+      .object({
+        kind: z.enum(['keyword', 'tag']).default('keyword'),
+        range: z.enum(['week', 'month']).default('week'),
+      })
+      .parse(req.query);
+    const key = `${kind}:${range}`,
+      cached = termCache.get(key);
+    if (cached && Date.now() - cached.time < 30_000) return cached.data;
+    const data = termOverview(db, kind, range, demo ? DEMO_NOW : Math.floor(Date.now() / HOUR) * HOUR, demo);
+    termCache.set(key, { time: Date.now(), data });
+    return data;
+  });
   app.get('/api/opportunity', (req) => {
     const q = querySchema.parse(req.query);
     return publicData(getData(q.range, q.size)).games.sort((a, b) => b.opportunity - a.opportunity);
@@ -525,6 +541,8 @@ export async function createApp(
     db.prepare('DELETE FROM reports').run();
     analyst.invalidate();
     cache.clear();
+    termCache.clear();
+    invalidateTerms(db);
     await snapshot(db);
     return { ok: true };
   });
@@ -611,7 +629,11 @@ export async function createApp(
   }
   const stopJobs = options.worker ? startJobs(db, analyst, getData) : undefined;
   if (options.worker && !demo && config.WORKER && config.TWITCH_CLIENT_ID && config.TWITCH_CLIENT_SECRET)
-    stopCollector = startCollector(db, () => cache.clear());
+    stopCollector = startCollector(db, () => {
+      cache.clear();
+      termCache.clear();
+      invalidateTerms(db);
+    });
   let vite: { close: () => Promise<void> } | undefined;
   if (options.web !== false) {
     if (options.dev) {

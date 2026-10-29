@@ -11,6 +11,8 @@ try {
     '/api/market-map',
     '/api/games',
     '/api/keywords',
+    '/api/terms?kind=keyword&range=week',
+    '/api/terms?kind=tag&range=month',
     '/api/opportunity?size=50',
     '/api/besttime?game=27471',
     '/api/streamers/rising',
@@ -21,13 +23,34 @@ try {
     assert.equal(result.statusCode, 200, `${url}: ${result.body}`);
     console.log(`200 ${url}`);
   }
-  const pulse = (await app.inject({ url: '/api/pulse' })).json();
+  const pulseResponse = await app.inject({ url: '/api/pulse' });
+  const csp = String(pulseResponse.headers['content-security-policy']);
+  assert.ok(csp.includes("img-src 'self' data: blob: https://static-cdn.jtvnw.net/ttv-boxart/;"));
+  assert.ok(csp.includes("connect-src 'self' https://static-cdn.jtvnw.net/ttv-boxart/;"));
+  assert.ok(csp.includes("script-src 'self';"));
+  assert.ok(csp.includes("object-src 'none';"));
+  const pulse = pulseResponse.json();
   assert.equal(pulse.source, 'synthetic');
   assert.equal(pulse.games.length, 12);
   assert.equal(pulse.range, 'week');
   const month = (await app.inject({ url: '/api/pulse?range=month' })).json();
   assert.equal(month.range, 'month');
   assert.notEqual(month.games[0].metric.deltaPct, pulse.games[0].metric.deltaPct);
+  assert.ok(
+    pulse.games.every((g: { boxArtUrl: string }) =>
+      g.boxArtUrl.startsWith('https://static-cdn.jtvnw.net/ttv-boxart/'),
+    ),
+  );
+  const terms = (await app.inject({ url: '/api/terms?kind=keyword&range=week' })).json();
+  assert.equal(terms.source, 'synthetic');
+  assert.equal(terms.terms[0].points.length, 7);
+  const cozy = terms.terms.find((t: { term: string }) => t.term === 'cozy');
+  assert.equal(cozy.channels, pulse.keywords.find((k: { word: string }) => k.word === 'cozy').channels);
+  const tags = (await app.inject({ url: '/api/terms?kind=tag&range=month' })).json();
+  assert.equal(tags.kind, 'tag');
+  assert.equal(tags.terms[0].points.length, 30);
+  assert.equal((await app.inject({ url: '/api/terms?kind=other' })).statusCode, 400);
+  assert.equal((await app.inject({ url: '/api/terms?range=day' })).statusCode, 400);
   const ask = await app.inject({
     method: 'POST',
     url: '/api/codex/ask',
@@ -62,6 +85,9 @@ try {
     assert.equal(empty.source, 'live');
     assert.equal(empty.games.length, 0);
     assert.equal(empty.platform.deltaPct, null);
+    const emptyTerms = (await live.inject({ url: '/api/terms?kind=tag' })).json();
+    assert.equal(emptyTerms.source, 'live');
+    assert.equal(emptyTerms.terms.length, 0);
     console.log('Live mode stays empty without collected observations.');
   } finally {
     await live.close();

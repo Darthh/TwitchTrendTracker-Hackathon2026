@@ -68,7 +68,7 @@ export function Chart({
       animation: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       animationDuration: 500,
       textStyle: { fontFamily: 'Inter, sans-serif' },
-      aria: { enabled: true },
+      aria: { enabled: true, label: { description: label } },
       ...(themed(option) as EChartsCoreOption),
     });
     if (onClick) chart.on('click', (p) => onClick(p.name));
@@ -78,7 +78,7 @@ export function Chart({
       observer.disconnect();
       chart.dispose();
     };
-  }, [option, onClick]);
+  }, [option, onClick, label]);
   return (
     <div className="chart-wrap">
       <div ref={ref} role="img" aria-label={label} style={{ height, width: '100%' }} />
@@ -117,11 +117,14 @@ export function areaOption(
   range: Range,
   color = '#39dca0',
   compactChart = false,
+  utc = false,
 ): EChartsCoreOption {
-  const date = new Intl.DateTimeFormat(
-    'en-US',
-    range === 'week' ? { weekday: 'short' } : { month: 'short', day: 'numeric' },
-  );
+  const date = new Intl.DateTimeFormat('en-US', {
+    ...(range === 'week'
+      ? { weekday: 'short' as const }
+      : { month: 'short' as const, day: 'numeric' as const }),
+    ...(utc ? { timeZone: 'UTC' } : {}),
+  });
   return {
     animation: false,
     grid: { top: 20, left: 0, right: compactChart ? 0 : 40, bottom: compactChart ? 0 : 25 },

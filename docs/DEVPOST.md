@@ -20,7 +20,7 @@ Codex built the repository from its initial license-only state in one thread: No
 
 Runtime integration uses the Codex TypeScript SDK, streamed steps, a public-only read-only snapshot, a strict SQL guard and killable query worker, and independent numeric checks. Live execution is disabled by default and requires an isolated Linux deployment. The supplied sample edition contains synthetic fixtures and deterministic rules answers; it does not contain fabricated live observations or recorded Codex responses.
 
-The visual design reimplements observed public Twitch token values with open-source Inter and original SVG geometry. The audit records a logged-out Playwright inspection in both themes. REA was not exposed by the build environment and was not used.
+The visual design follows observed public Twitch layout values with open-source Inter. REA CLI captures recorded the logged-out directory, verified real category artwork URLs, and the before/after layout. Official covers load from Twitch CDN with original SVG fallbacks. Interactive Categories and Keywords & tags screens combine trend charts with ranked lists; all demo metrics remain synthetic. See the design audits and REA manifests for evidence and limitations.
 
 ## Challenges
 

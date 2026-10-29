@@ -3,6 +3,8 @@ import type { Dashboard, Game, Point, Range, Streamer } from '../shared/types.js
 import { breakout, compare, opportunity, quantile } from '../metrics/index.js';
 import { DAY, HOUR } from '../metrics/config.js';
 import { CATALOG, DEMO_NOW } from './seed.js';
+import { categoryArtwork } from '../shared/category-artwork.js';
+import { termOverview } from './terms.js';
 type Hour = {
   hour: number;
   viewers: number;
@@ -32,6 +34,7 @@ export function dashboard(db: DB, range: Range, demo: boolean, size = 50): Dashb
     genre: string;
     release_date: number | null;
     first_seen: number;
+    box_art_url: string | null;
   }[];
   const games: Game[] = catalog.map((g, i) => {
     const meta = CATALOG.find((c) => c.id === g.id),
@@ -55,6 +58,7 @@ export function dashboard(db: DB, range: Range, demo: boolean, size = 50): Dashb
       ...g,
       color,
       art: meta?.art ?? 'crystal',
+      boxArtUrl: categoryArtwork(g.name, g.box_art_url),
       ageDays: g.release_date ? Math.floor((now - g.release_date) / DAY) : null,
       metric,
       supplyMetric: compare(supply, range, now),
@@ -157,35 +161,26 @@ export function dashboard(db: DB, range: Range, demo: boolean, size = 50): Dashb
       };
     })
     .sort((a, b) => (b.metric.deltaPct ?? -Infinity) - (a.metric.deltaPct ?? -Infinity));
-  const keywordRows = db
-    .prepare('SELECT keyword, channels FROM keyword_weekly ORDER BY week DESC LIMIT 20')
-    .all() as { keyword: string; channels: number }[];
-  const keywords = demo
-    ? [
-        'first playthrough',
-        'drops',
-        'cozy',
-        'ranked',
-        'halloween',
-        'community',
-        'no backseating',
-        'challenge run',
-      ].map((word, i) => ({
-        word,
-        channels: 342 - i * 31,
-        previousChannels: 167 - i * 12,
-        lift: 1.64 - i * 0.065,
-        iqr: [1.12, 1.9] as [number, number],
-        series: [20, 24 + i, 29, 26, 38, 44 + i, 57, 64],
-      }))
-    : keywordRows.map((k) => ({
-        word: k.keyword,
-        channels: k.channels,
-        previousChannels: 0,
-        lift: 0,
-        iqr: [0, 0] as [number, number],
-        series: [],
-      }));
+  const sampleWords = [
+    'first playthrough',
+    'drops',
+    'cozy',
+    'ranked',
+    'halloween',
+    'community',
+    'no backseating',
+    'challenge run',
+  ];
+  const keywords = termOverview(db, 'keyword', range, now, demo)
+    .terms.map((term) => ({
+      word: term.term,
+      channels: term.channels,
+      previousChannels: term.previousChannels,
+      lift: demo ? 1.64 - sampleWords.indexOf(term.term) * 0.065 : 0,
+      iqr: (demo ? [1.12, 1.9] : [0, 0]) as [number, number],
+      series: term.points.map((p) => p.value),
+    }))
+    .sort((a, b) => (demo ? b.lift - a.lift : b.channels - a.channels));
   const firstPoll = db.prepare('SELECT MIN(ts) first, MAX(ts) last, COUNT(*) n FROM polls').get() as {
     first: number | null;
     last: number | null;

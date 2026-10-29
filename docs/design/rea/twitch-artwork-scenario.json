@@ -1,0 +1,48 @@
+{
+  "browser": {
+    "mode": "launch",
+    "executable_path": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "headless": true
+  },
+  "start_url": {
+    "url": "https://www.twitch.tv/directory"
+  },
+  "environment": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "color_scheme": "dark",
+    "timezone": "America/Los_Angeles"
+  },
+  "actions": [
+    {
+      "step_id": "loaded",
+      "action": "wait_for",
+      "locator": {
+        "kind": "css",
+        "selector": "h1"
+      },
+      "state": "visible",
+      "timeout_ms": 30000
+    },
+    {
+      "step_id": "cookie_notice",
+      "action": "click",
+      "locator": {
+        "kind": "role",
+        "role": "button",
+        "name": "Proceed"
+      },
+      "timeout_ms": 15000
+    },
+    {
+      "step_id": "settled",
+      "action": "wait_for_timeout",
+      "duration_ms": 1500
+    }
+  ],
+  "capture": {
+    "at_end": ["screenshot", "dom", "accessibility", "url"]
+  }
+}

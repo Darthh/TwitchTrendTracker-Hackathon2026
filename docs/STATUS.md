@@ -17,7 +17,7 @@ Updated 2026-10-29, America/Los_Angeles.
 - Transparent OBS ticker/momentum/card/alert browser sources. Sample overlays replay fixture values, explicitly labeled synthetic; this is not replay of real collected polls.
 - Source brief, README, design evidence audit, demo/submission drafts, CI and manual Codex review workflow, Docker recipe.
 
-## Verification completed in this session
+## Initial implementation verification
 
 - `npm run check`: TypeScript + ESLint + **50 Vitest tests passed** before the final delivery pass.
 - `npm run smoke`: Pulse, cards, map, games, keywords, Opportunity, heatmap, streamers, reports and health returned 200 with synthetic data; Week/Month differ; cached analyst returns correctly labeled rules output; invalid ranges and unauthorized/foreign-origin writes are rejected.
@@ -34,6 +34,13 @@ Fresh-checkout validation also passed: clean `npm ci`, all 50 tests, API smoke, 
 The interface now follows the measured Twitch dark directory proportions: 50px top bar, 240px sidebar, larger type, purple genre shortcuts and square-cornered 3:4 covers. Light mode and responsive navigation remain available, and synthetic-data labels stay visible at all checked widths. The README follows AgentHandshake's visual/documentation structure, with separate [setup](SETUP.md) and [metrics](METRICS.md) guides.
 
 REA 6.8.0 CLI captures and comparisons were run in owned temporary browsers; all three final captures are complete and report cleanup. [The design audit](design/twitch-style-audit.md) links the actual scenario inputs, manifest, exact pixel comparison outputs and limitations. This supersedes the initial pass's lack of REA evidence. Local browser checks and the existing test/build/smoke suite were rerun for this refresh; external integration status below is unchanged.
+
+## 2026-10-29 official artwork and trend exploration
+
+- Real category covers now load from Twitch CDN in the directory, Pulse, category detail, rankings and exported cards. REA captures verified all 12 known covers, including names whose fixture IDs differ from real Twitch IDs. Unsupported/failed images use the original SVGs; demo-safe mode uses initials.
+- Categories opens with filtered rising/falling charts and ranked covers. Keywords & tags adds selectable title/tag signals, daily distinct-channel history, Week/Month comparisons and related categories. Existing Title Lab and controlled-lift views remain available.
+- `/api/terms` derives live counts from observed metadata updates, deduplicates channels and excludes opt-outs. It withholds unsupported or truncated comparisons. It does not claim exhaustive title usage, concurrent viewers or causal lift. The demo's term activity and associations are synthetic.
+- TypeScript, ESLint, **57 tests**, expanded API smoke and the production build pass. Browser checks cover signal selection, tag/range switching, category filters, covers, fallback/safe modes, mobile layout and actual PNG export with official artwork. See [the current design audit](design/category-artwork-and-trends.md) and [CODEX_LOG](CODEX_LOG.md).
 
 ## Deliberate cuts and remaining product depth
 

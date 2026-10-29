@@ -1,6 +1,8 @@
 # Twitch layout audit
 
-Updated 2026-10-29 for the user's request to move the UI closer to Twitch's dark layout using [REA](https://github.com/morluto/rea).
+Historical layout audit at commit `f975605`, 2026-10-29. The later [official artwork and trend charts update](category-artwork-and-trends.md) supersedes the original-cover treatment described here.
+
+Prepared for the user's request to move the UI closer to Twitch's dark layout using [REA](https://github.com/morluto/rea).
 
 ## Observation method
 
@@ -65,7 +67,7 @@ REA's actual `compare_web_screenshots` outputs are committed without image paylo
 
 **These are pixel differences, not a similarity score or proof of design accuracy.** REA's comparator performs no OCR, semantic layout analysis, or perceptual color correction. Ad placement, original covers, different text, cookie state, and live reference content affect the totals. The lower changed-pixel ratio and higher mean channel delta in the reference comparisons are both reported; neither replaces geometry measurement and visual review. REA also reports that source artifact identity is unavailable for the comparison observation. The supplied screenshot digests identify its input bytes, not the provenance of the websites.
 
-The [after screenshot](../screenshots/categories-desktop.png) is committed byte-for-byte from the REA artifact. Full raw envelopes, DOM, and third-party reference screenshots remain local under ignored `docs/design/reference/`. No third-party reference imagery is shipped as a product asset.
+The [after screenshot](../screenshots/layout-refresh-2026-10-29.png) is committed byte-for-byte from the REA artifact. Full raw envelopes, DOM, and third-party reference screenshots remain local under ignored `docs/design/reference/`. No third-party reference imagery is shipped as a product asset.
 
 ## Reproduction
 

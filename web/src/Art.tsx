@@ -1,21 +1,25 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 export function Art({
   kind,
   color,
   name,
   safe = false,
   small = false,
+  src,
 }: {
   kind: string;
   color: string;
   name: string;
   safe?: boolean;
   small?: boolean;
+  src?: string | null;
 }) {
   const id = useId().replaceAll(':', '');
+  const [failed, setFailed] = useState<string | null>(null);
+  const photo = !safe && src && failed !== src;
   return (
     <div
-      className={`art art-${kind} ${small ? 'art-small' : ''}`}
+      className={`art art-${kind} ${small ? 'art-small' : ''} ${photo ? 'has-image' : ''}`}
       style={{ '--art-color': color } as React.CSSProperties}
     >
       {safe ? (
@@ -26,6 +30,17 @@ export function Art({
             .slice(0, 2)
             .join('')}
         </span>
+      ) : photo ? (
+        <img
+          className="category-photo"
+          src={src}
+          alt={`${name} Twitch category artwork`}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+          loading={small ? 'eager' : 'lazy'}
+          decoding="async"
+          onError={() => setFailed(src)}
+        />
       ) : (
         <svg viewBox="0 0 240 300" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
           <defs>

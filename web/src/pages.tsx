@@ -40,6 +40,7 @@ import {
 } from './components';
 import { absolute, api, compact, metricText, percent } from './lib';
 import { MarketMap } from './Pulse';
+import { CategoryTrends, TermExplorer } from './TrendPanels';
 export function Categories() {
   const { data } = useApp(),
     [grid, setGrid] = useState(true),
@@ -120,6 +121,8 @@ export function Categories() {
           </select>
         </label>
       </div>
+      <CategoryTrends games={games} />
+      <div id="category-directory" className="category-directory-anchor" />
       {!games.length ? (
         <Empty title="No categories found.">Try a different search or category filter.</Empty>
       ) : grid ? (
@@ -271,7 +274,7 @@ export function CategoryDetail({ id }: { id: string }) {
         <ArrowLeft size={15} /> All categories
       </Link>
       <div className="detail-heading">
-        <Art kind={game.art} name={game.name} color={game.color} safe={safe} small />
+        <Art kind={game.art} name={game.name} color={game.color} safe={safe} small src={game.boxArtUrl} />
         <div>
           <div className="inline gap">
             <span className="tag">{game.genre}</span>
@@ -814,9 +817,10 @@ export function Keywords() {
   return (
     <>
       <PageHeading
-        title="The words that bring people in."
-        description="Discover title and tag patterns associated with stronger streams."
+        title="Keywords & tags"
+        description="Explore the phrases and tags gaining traction, and see where they appear."
       />
+      <TermExplorer />
       <div className="two-columns">
         <section className="panel">
           <SectionHead

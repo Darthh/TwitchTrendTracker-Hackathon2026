@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS streams (id TEXT PRIMARY KEY, channel_id TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS samples (ts INTEGER NOT NULL, stream_id TEXT NOT NULL REFERENCES streams(id), viewers INTEGER NOT NULL, game_id TEXT NOT NULL, PRIMARY KEY(ts, stream_id));
 CREATE INDEX IF NOT EXISTS samples_game_ts ON samples(game_id, ts);
 CREATE TABLE IF NOT EXISTS stream_meta (stream_id TEXT NOT NULL, ts INTEGER NOT NULL, game_id TEXT NOT NULL, title TEXT NOT NULL, tags TEXT NOT NULL, PRIMARY KEY(stream_id,ts));
+CREATE INDEX IF NOT EXISTS stream_meta_ts ON stream_meta(ts);
 CREATE TABLE IF NOT EXISTS game_hourly (hour INTEGER NOT NULL, game_id TEXT NOT NULL, viewers REAL NOT NULL, channels REAL NOT NULL, coverage REAL NOT NULL, peak REAL NOT NULL, hours_watched REAL NOT NULL, hours_streamed REAL NOT NULL, PRIMARY KEY(hour,game_id));
 CREATE TABLE IF NOT EXISTS channel_hourly (hour INTEGER NOT NULL, channel_id TEXT NOT NULL, game_id TEXT NOT NULL, viewers REAL NOT NULL, coverage REAL NOT NULL, peak REAL NOT NULL, sessions INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(hour,channel_id,game_id));
 CREATE TABLE IF NOT EXISTS game_daily (day INTEGER NOT NULL, game_id TEXT NOT NULL, viewers REAL NOT NULL, hours_watched REAL NOT NULL, hours_streamed REAL NOT NULL, PRIMARY KEY(day,game_id));

@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-29",
+  "tool": "rea-agents@6.8.0",
+  "runtime": "Temporary node@26.12.1; owned headless Chrome; 1440x900 dark; production demo at localhost:3000",
+  "captures": [
+    {
+      "page": "categories",
+      "evidence_id": "ev_1b8d67a61d02e64e34f2032f6d0d397aa922403d217ba2ce4927213b15094a90",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "screenshot": {
+        "sha256": "ca778b14facf36df1809e25f11b78c809a9d8390157b49ae3f9fd72763c49a4c",
+        "bytes": 209963,
+        "media_type": "image/png"
+      },
+      "image": "docs/screenshots/categories-desktop.png"
+    },
+    {
+      "page": "keywords",
+      "evidence_id": "ev_5d833de6a97f1fffa6b13c1cf0473fc6021febfd21b912734cb48e5f6ce06244",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "screenshot": {
+        "sha256": "525b6de7b709a56af6b97a20cfbf4b5a9114b33e2b05c41b8b6c043ee03bdffe",
+        "bytes": 178979,
+        "media_type": "image/png"
+      },
+      "image": "docs/screenshots/keywords-desktop.png"
+    },
+    {
+      "page": "tags",
+      "evidence_id": "ev_975b169ef0fbe0b5679b46869e49eb3cb9a0f5ea38fa1a5f9b2a802669a7b942",
+      "completeness": {
+        "status": "complete",
+        "equality_eligible": true,
+        "missing_sections": [],
+        "truncated_sections": []
+      },
+      "cleanup": "terminated-owned-process",
+      "screenshot": {
+        "sha256": "5baa8320c0f252d1e823323258400bd8d78a8359bfbf91941da2d98baa2c772b",
+        "bytes": 181114,
+        "media_type": "image/png"
+      },
+      "image": "docs/screenshots/tags-desktop.png"
+    }
+  ]
+}
