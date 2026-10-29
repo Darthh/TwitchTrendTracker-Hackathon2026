@@ -17,6 +17,7 @@ import { AppContext, useApp } from './context';
 import { Change, Link, Logo, Modal } from './components';
 import { Pulse } from './Pulse';
 import { Sidebar, BrowseNavigation } from './Navigation';
+import { RealData } from './RealData';
 import {
   About,
   Alerts,
@@ -176,7 +177,8 @@ export function App() {
       ].slice(0, 7)
     : [];
   let page = <Pulse filter={filter} setFilter={setFilter} />;
-  if (path === '/categories') page = <Categories />;
+  if (path === '/' || path === '/data') page = <RealData />;
+  else if (path === '/categories') page = <Categories />;
   else if (path.startsWith('/categories/')) page = <CategoryDetail id={path.split('/')[2]} />;
   else if (path.startsWith('/streamers')) page = <Streamers login={path.split('/')[2]} />;
   else if (path === '/keywords') page = <Keywords />;
@@ -187,11 +189,11 @@ export function App() {
   else if (path === '/channel') page = <Channel />;
   else if (path === '/about/data') page = <About />;
   else if (path === '/styleguide') page = <Styleguide />;
-  else if (path !== '/')
+  else if (path !== '/pulse')
     page = (
       <div className="empty-state">
         <h1>This page took a different route.</h1>
-        <Link to="/" className="button primary">
+        <Link to="/pulse" className="button primary">
           Back to Pulse
         </Link>
       </div>

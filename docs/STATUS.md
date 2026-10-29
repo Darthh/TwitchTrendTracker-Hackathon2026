@@ -50,6 +50,12 @@ Driver detectors have pure tests, but only supported release/clip/platform evide
 
 Interactive materialization is bounded to 300 categories and 500 growth candidates plus connected channels. The platform baseline sums all collected categories, while leaderboard positions describe this observed candidate pool. Historical rollups remain stored beyond the selected query windows.
 
+## 2026-10-29 real data logger
+
+Implemented the no-key TwitchTracker public summary adapter, transactional source/provenance tables, hourly due/cooldown gate, process lease, read-only collection/history endpoints, real-data default home screen and Windows recovery task. Real provider records are kept in `data/upswing.db`, separate from `data/demo.db` and from direct Twitch concurrent-viewer/title/tag tables.
+
+The initial real API batch saved 16 summaries: 12 real categories and four streamers. The production server was restarted against the saved database and displayed all 16 records. The scheduled task's observed run succeeded and respected the not-due gate. TypeScript, ESLint, 67 tests, API smoke and production build passed, as did focused desktop/mobile/theme/source/history browser checks. See [REAL_DATA](REAL_DATA.md) and CODEX_LOG for scope, operation and evidence. No future uptime or cloud deployment is claimed.
+
 ## Not externally verified
 
-No Twitch app credentials, authorized test channel, real collected dataset or API key were supplied. Consequently no live collector request, OAuth login/refresh, bot subscription/reply, own-channel change/raid, real Codex run, deployed filesystem/network sandbox, durable hosted worker, OBS broadcast, public deployment, public video or hackathon submission was exercised. Docker/CI workflows are provided but were not run on their target services. This application is a locally verified core implementation, not proof that the original live hackathon submission criteria have been satisfied.
+No local Twitch app credentials or authorized test channel are configured. Real public TwitchTracker summaries have been collected, but no direct Helix collector request, OAuth login/refresh, bot subscription/reply, own-channel change/raid, real Codex run, deployed filesystem/network sandbox, durable hosted worker, OBS broadcast, public deployment, public video or hackathon submission was exercised. Docker/CI workflows are provided but were not run on their target services. This application is a locally verified core implementation, not proof that the original live hackathon submission criteria have been satisfied.

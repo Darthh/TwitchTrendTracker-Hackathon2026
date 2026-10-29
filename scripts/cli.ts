@@ -5,12 +5,43 @@ import { dashboard } from '../src/db/queries.js';
 import { backfillClips, collectOnce, startCollector } from '../src/collector/poll.js';
 import { explain } from '../src/why/index.js';
 import { Analyst, QUESTIONS } from '../src/codex/runtime.js';
+import {
+  ensureSourceWatches,
+  collectSummaries,
+  startSummaryCollector,
+  collectionOverview,
+} from '../src/sources/collector.js';
 const command = process.argv[2],
   demo = process.argv.includes('--demo');
 const db = openDb(demo ? 'data/demo.db' : undefined);
 if (demo) seedDemo(db);
 try {
-  if (command === 'collect:once') console.log(JSON.stringify(await collectOnce(db), null, 2));
+  if (command === 'collect:twitchtracker:once' || command === 'collect:twitchtracker') {
+    if (demo) throw new Error('Real source collection must use the live database; omit --demo.');
+    ensureSourceWatches(db);
+    if (command === 'collect:twitchtracker:once') {
+      const result = await collectSummaries(db);
+      console.log(JSON.stringify(result, null, 2));
+      if (result.failures) process.exitCode = 1;
+    } else {
+      const stop = startSummaryCollector(db);
+      process.on('SIGINT', () => {
+        void stop().then(() => {
+          db.close();
+          process.exit(0);
+        });
+      });
+      process.on('SIGTERM', () => {
+        void stop().then(() => {
+          db.close();
+          process.exit(0);
+        });
+      });
+      await new Promise(() => {});
+    }
+  } else if (command === 'collection:status')
+    console.log(JSON.stringify(collectionOverview(db, false), null, 2));
+  else if (command === 'collect:once') console.log(JSON.stringify(await collectOnce(db), null, 2));
   else if (command === 'collect') {
     const stop = startCollector(db);
     process.on('SIGINT', () => {
@@ -97,5 +128,5 @@ try {
   console.error(error instanceof Error ? error.message : 'Command failed');
   process.exitCode = 1;
 } finally {
-  if (command !== 'collect') db.close();
+  if (command !== 'collect' && command !== 'collect:twitchtracker') db.close();
 }

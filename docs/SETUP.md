@@ -4,6 +4,12 @@
 
 The keyless demo needs no credentials. This guide covers the optional live integrations; they still require authorized-account and deployment verification.
 
+## Start real data without Twitch credentials
+
+Use [the real-data collection guide](REAL_DATA.md). `npm run collect:twitchtracker:once` saves a due batch from TwitchTracker's documented API to `data/upswing.db`; `npm start` serves real summaries at `/`. `npm run collection:schedule` installs the Windows recovery task. No paid host or API key is required for this provider. The PC must be awake and the user logged in for that schedule.
+
+The summary API is separate from direct Twitch audience/title/tag collection. The variables `TWITCHTRACKER_ENABLED`, `TWITCHTRACKER_INTERVAL_MIN`, `TWITCHTRACKER_CHANNELS` and `TWITCHTRACKER_CATEGORIES` configure it; see `.env.example`. The default cadence is 60 minutes and cannot be set below that.
+
 ## Twitch setup
 
 1. Register an app in [Twitch Developer Console](https://dev.twitch.tv/console/apps). Set its OAuth redirect to `http://localhost:3000/auth/twitch/callback` for local use. Use the same origin in `PUBLIC_URL` and your browser.

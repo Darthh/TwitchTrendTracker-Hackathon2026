@@ -26,6 +26,7 @@ import { downsample } from '../metrics/index.js';
 import { DAY, HOUR } from '../metrics/config.js';
 import type { Dashboard, Range, TermOverview } from '../shared/types.js';
 import { startJobs } from './jobs.js';
+import { collectionOverview, summaryHistory, startSummaryCollector } from '../sources/collector.js';
 const querySchema = z.object({
   range: z.enum(['week', 'month']).default('week'),
   size: z.coerce.number().min(1).max(100000).default(50),
@@ -37,9 +38,16 @@ const askSchema = z.object({
 });
 export async function createApp(
   db: DB,
-  options: { demo?: boolean; dev?: boolean; web?: boolean; worker?: boolean } = {},
+  options: { demo?: boolean; dev?: boolean; web?: boolean; worker?: boolean; collectionDb?: DB } = {},
 ) {
   const demo = options.demo ?? false;
+  const collectionDb = options.collectionDb ?? (demo ? null : db);
+  const directActive =
+    !!options.worker &&
+    config.WORKER &&
+    !!config.TWITCH_CLIENT_ID &&
+    !!config.TWITCH_CLIENT_SECRET &&
+    !!collectionDb;
   if (demo) seedDemo(db);
   const app = Fastify({ logger: false, bodyLimit: 32768, trustProxy: false });
   await app.register(cookie, { secret: config.SESSION_SECRET || randomBytes(32).toString('hex') });
@@ -191,6 +199,21 @@ export async function createApp(
     return list.find((s) => s.login === login) ?? reply.code(404).send({ error: 'Streamer not found.' });
   });
   app.get('/api/keywords', (req) => getData(querySchema.parse(req.query).range).keywords);
+  app.get('/api/collection', () => collectionOverview(collectionDb, directActive));
+  app.get('/api/collection/history', (req) => {
+    const query = z
+      .object({
+        kind: z.enum(['category', 'channel']),
+        key: z.string().min(1).max(25),
+        range: z.enum(['week', 'month']).default('week'),
+      })
+      .parse(req.query);
+    return {
+      provider: 'twitchtracker',
+      period: 'provider_summary',
+      points: summaryHistory(collectionDb, query.kind, query.key, query.range),
+    };
+  });
   app.get('/api/terms', (req) => {
     const { kind, range } = z
       .object({
@@ -628,12 +651,16 @@ export async function createApp(
     enabled.forEach((account) => eventsub.start(account));
   }
   const stopJobs = options.worker ? startJobs(db, analyst, getData) : undefined;
-  if (options.worker && !demo && config.WORKER && config.TWITCH_CLIENT_ID && config.TWITCH_CLIENT_SECRET)
-    stopCollector = startCollector(db, () => {
+  if (directActive && collectionDb)
+    stopCollector = startCollector(collectionDb, () => {
       cache.clear();
       termCache.clear();
-      invalidateTerms(db);
+      invalidateTerms(collectionDb);
     });
+  const stopSummaries =
+    options.worker && config.WORKER && config.TWITCHTRACKER_ENABLED && collectionDb
+      ? startSummaryCollector(collectionDb)
+      : undefined;
   let vite: { close: () => Promise<void> } | undefined;
   if (options.web !== false) {
     if (options.dev) {
@@ -661,6 +688,7 @@ export async function createApp(
     });
   }
   app.addHook('onClose', async () => {
+    await stopSummaries?.();
     stopCollector?.();
     stopJobs?.();
     eventsub.close();

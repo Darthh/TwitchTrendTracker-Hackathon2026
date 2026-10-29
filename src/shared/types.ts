@@ -1,4 +1,36 @@
 export type Range = 'week' | 'month';
+export type SourceKind = 'category' | 'channel';
+export interface SourceItem {
+  kind: SourceKind;
+  key: string;
+  label: string;
+  observedAt: number | null;
+  lastError: string | null;
+  sourceUrl: string;
+  artwork: string | null;
+  metrics: Record<string, number> | null;
+  observations: number;
+}
+export interface CollectionOverview {
+  provider: 'twitchtracker';
+  period: 'provider_summary';
+  active: boolean;
+  intervalMin: number;
+  heartbeat: number | null;
+  nextDue: number | null;
+  lastFinished: number | null;
+  lastError: string | null;
+  totalSnapshots: number;
+  firstObserved: number | null;
+  items: SourceItem[];
+  directTwitch: {
+    configured: boolean;
+    active: boolean;
+    polls: number;
+    samples: number;
+    lastPoll: number | null;
+  };
+}
 export interface Point {
   ts: number;
   value: number;

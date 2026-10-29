@@ -1,0 +1,118 @@
+{
+  "verifiedAt": "2026-10-29T11:43:23.267Z",
+  "source": "https://twitchtracker.com/api",
+  "storage": "Local ignored data/upswing.db; reopened from a fresh process",
+  "summaryPeriod": "Provider documents 30-day summaries; not live concurrent viewers",
+  "records": {
+    "n": 16,
+    "first": 1793270674686,
+    "last": 1793270990215
+  },
+  "entities": [
+    {
+      "kind": "category",
+      "entity_key": "18122",
+      "observations": 1,
+      "last": 1793270674686
+    },
+    {
+      "kind": "category",
+      "entity_key": "21779",
+      "observations": 1,
+      "last": 1793270976466
+    },
+    {
+      "kind": "category",
+      "entity_key": "27471",
+      "observations": 1,
+      "last": 1793270977441
+    },
+    {
+      "kind": "category",
+      "entity_key": "33214",
+      "observations": 1,
+      "last": 1793270978479
+    },
+    {
+      "kind": "category",
+      "entity_key": "417752",
+      "observations": 1,
+      "last": 1793270979449
+    },
+    {
+      "kind": "category",
+      "entity_key": "491487",
+      "observations": 1,
+      "last": 1793270980411
+    },
+    {
+      "kind": "category",
+      "entity_key": "491931",
+      "observations": 1,
+      "last": 1793270981379
+    },
+    {
+      "kind": "category",
+      "entity_key": "509658",
+      "observations": 1,
+      "last": 1793270982402
+    },
+    {
+      "kind": "category",
+      "entity_key": "509660",
+      "observations": 1,
+      "last": 1793270983383
+    },
+    {
+      "kind": "category",
+      "entity_key": "511391",
+      "observations": 1,
+      "last": 1793270984355
+    },
+    {
+      "kind": "category",
+      "entity_key": "516575",
+      "observations": 1,
+      "last": 1793270985337
+    },
+    {
+      "kind": "category",
+      "entity_key": "518184",
+      "observations": 1,
+      "last": 1793270986305
+    },
+    {
+      "kind": "channel",
+      "entity_key": "eslcs",
+      "observations": 1,
+      "last": 1793270987298
+    },
+    {
+      "kind": "channel",
+      "entity_key": "pokimane",
+      "observations": 1,
+      "last": 1793270988268
+    },
+    {
+      "kind": "channel",
+      "entity_key": "shroud",
+      "observations": 1,
+      "last": 1793270989229
+    },
+    {
+      "kind": "channel",
+      "entity_key": "twitch",
+      "observations": 1,
+      "last": 1793270990215
+    }
+  ],
+  "collector": {
+    "heartbeat": 1793274195871,
+    "next_due": 1793274590976,
+    "last_finished": 1793270990976,
+    "last_error": null,
+    "successes": 15,
+    "failures": 0
+  },
+  "limits": "This is a point-in-time observation, not future uptime or a historical backfill. No credentials or raw provider payloads are included."
+}

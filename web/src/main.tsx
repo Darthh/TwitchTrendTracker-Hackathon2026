@@ -9,6 +9,7 @@ import './theme/tokens.css';
 import './style.css';
 import './twitch-layout.css';
 import './discovery-trends.css';
+import './real-data.css';
 import { App } from './App';
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

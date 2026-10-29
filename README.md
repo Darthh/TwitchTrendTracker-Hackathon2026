@@ -18,10 +18,10 @@
 
 Built for the 2026 hackathon, Upswing combines a Twitch-inspired directory with Week/Month analytics, shareable trend cards, an opportunity map, and an in-app analyst. A single Node service serves the interface, API, SQLite database, and collection jobs.
 
-**Status: locally verified hackathon prototype.** The keyless demo uses deterministic **synthetic observations** and a labeled **Rules analyst**. Live Twitch collection, OAuth, own-channel actions, and an optional isolated Codex runtime are implemented integration paths, but have not been exercised against authorized live accounts in this project session. No public deployment is claimed. See [implementation status](docs/STATUS.md) for the exact evidence and remaining work.
+**Status: real public-summary collection is running locally.** The default screen shows saved TwitchTracker category and streamer summaries with source attribution and fetch times. The initial collection saved 16 real records; an hourly logger and a Windows recovery schedule are installed. The separate demo analytics use deterministic **synthetic observations** and a labeled **Rules analyst**. Direct Twitch collection, OAuth, own-channel actions and optional live Codex still require configuration/verification. No public deployment is claimed. See [implementation status](docs/STATUS.md) for the exact evidence and remaining work.
 
 <p align="center">
-  <img src="docs/screenshots/categories-directory.png" alt="Upswing's dark category directory with official Twitch covers and clearly labeled synthetic sample data" width="1100">
+  <img src="docs/screenshots/real-data-desktop.png" alt="Upswing collecting real TwitchTracker category and streamer summaries with source labels and saved history" width="1100">
 </p>
 
 ## Contents
@@ -34,6 +34,7 @@ Built for the 2026 hackathon, Upswing combines a Twitch-inspired directory with 
 - [Dashboard and API](#dashboard-and-api)
 - [Technology and repository map](#technology-and-repository-map)
 - [Credentials and configuration](#credentials-and-configuration)
+- [Real data collection](#real-data-collection)
 - [Getting started](#getting-started)
 - [Verification and design evidence](#verification-and-design-evidence)
 - [Deployment](#deployment)
@@ -120,9 +121,11 @@ The [full metric definitions](docs/METRICS.md) include breakout thresholds, reta
 
 ## Dashboard and API
 
+The default home route `/` and `/data` show **real provider summaries**, with separate local `/api/collection` and `/api/collection/history` read endpoints. The full analytic Pulse is at `/pulse`; in demo mode it is explicitly synthetic.
+
 | Screen                     | Route                                           | Purpose                                                         |
 | -------------------------- | ----------------------------------------------- | --------------------------------------------------------------- |
-| Pulse                      | `/`                                             | Trend cards, filters, and the current comparison                |
+| Pulse                      | `/pulse`                                        | Trend cards, filters, and the current comparison                |
 | Browse                     | `/categories`, `/categories/:id`                | Category directory and detail                                   |
 | Streamers                  | `/streamers`, `/streamers/:login`               | Observed-pool rankings and channel detail                       |
 | Keywords / Opportunity     | `/keywords`, `/opportunity`                     | Title signals and audience-size exploration                     |
@@ -169,6 +172,21 @@ docs/                 Setup, metric definitions, evidence, screenshots and demo 
 
 The [environment table and OAuth scope table](docs/SETUP.md#environment) document all options. `.env`, tokens, database files, and analyst snapshots are ignored and must stay out of commits. Chat currently sends as the connected broadcaster; a separate bot identity is not implemented.
 
+## Real data collection
+
+Upswing uses [TwitchTracker's documented public summary API](https://twitchtracker.com/api) with local SQLite storage. No API key, paid subscription or hosted service was needed. The starter watchlist tracks 12 real categories and four real channels. Normal provider requests are limited to hourly batches; source URLs, timestamps and response hashes are persisted.
+
+```sh
+npm ci
+npm run collect:twitchtracker:once
+npm run build
+npm start
+```
+
+Open **http://localhost:3000/** for real summaries, category/streamer charts and saved history. On Windows, `npm run collection:schedule` installs a limited-privilege task that checks every 15 minutes and at login; SQLite's due gate keeps upstream reads hourly. It continues without the dashboard while the PC is awake and the user is logged in. Run `npm run collection:status` to inspect collection, and `npm run collection:unschedule` to remove the task.
+
+These are provider summaries, documented as 30-day windows. They do not replace direct concurrent-viewer samples or title/tag observations. Week/Month on the real-data page selects the saved-history window. [The collection guide](docs/REAL_DATA.md) explains source choice, cost, configuration, limits, storage, scheduler operation and actual verification.
+
 ## Getting started
 
 Requirements: **Node 22+**, npm, and Git. Local verification used Node 24.16.0.
@@ -180,7 +198,7 @@ npm ci
 npm run demo
 ```
 
-Open **http://localhost:3000**. The command builds the client and starts one Node service. First startup creates a deterministic 64-day synthetic dataset at `data/demo.db`, using [the fixture manifest](data/sample/manifest.json). OAuth and Twitch writes stay disabled in demo mode.
+Open **http://localhost:3000** for real data, or **http://localhost:3000/pulse** for the synthetic demo analytics. The command builds the client and starts one Node service. First startup creates a deterministic 64-day synthetic dataset at `data/demo.db`, using [the fixture manifest](data/sample/manifest.json). OAuth and Twitch writes stay disabled in demo mode.
 
 For interface development, use `npx tsx watch src/server/index.ts --demo --dev` to keep the synthetic dataset and enable Vite HMR. `npm run dev` starts the live-mode development service, which remains empty until real observations exist. Build live mode with `npm run build` and start it with `npm start` after configuring your environment.
 
@@ -192,7 +210,7 @@ npm run smoke    # In-process API contracts and write guards
 npm run build    # Production client bundle
 ```
 
-The locally verified suite contains **57 tests** covering comparisons, coverage, opportunity, collection retries, decomposition, flow conservation, SQL restrictions, wrong-number rejection, encryption, snapshot exclusion, injection resistance, bot cooldowns, term deduplication and coverage, opt-out exclusion, and artwork URL validation. Smoke checks verify both ranges, synthetic source labeling, analyst fallback, rejected writes, and empty live-mode behavior. Target-service CI and hosted deployment are separate evidence states; the badge above links to the actual workflow.
+The locally verified suite contains **67 tests** covering comparisons, coverage, opportunity, collection retries, decomposition, flow conservation, SQL restrictions, wrong-number rejection, encryption, snapshot exclusion, injection resistance, bot cooldowns, term deduplication and coverage, opt-out exclusion, and artwork URL validation. Smoke checks verify both ranges, synthetic source labeling, analyst fallback, rejected writes, and empty live-mode behavior. Target-service CI and hosted deployment are separate evidence states; the badge above links to the actual workflow.
 
 The dark layout was refined using [REA](https://github.com/morluto/rea): a logged-out Twitch directory capture, owned-browser captures of Upswing before/after, and screenshot comparisons. Measurements guide the 50px header, 240px sidebar, 14px base text, 60px Browse title, purple shortcuts, and rectangular 3:4 covers. [The design audit](docs/design/twitch-style-audit.md) records evidence IDs, hashes, measured differences, reproduction inputs, and limitations. Pixel differences measure changed pixels, not semantic similarity or a design accuracy score.
 
@@ -208,7 +226,7 @@ No hosting account, paid plan, public URL, or live deployment was created here. 
 
 ## Demo walkthrough
 
-1. Open Pulse and switch Week → Month. The time window and rankings update; the synthetic source label stays visible.
+1. Open the real-data home screen to inspect saved provider records, then open `/pulse` in demo mode and switch Week → Month. The time window and rankings update; the synthetic source label stays visible.
 2. Browse Categories to see the rising/falling charts and real cover thumbnails. Choose a genre or search to filter the charts and directory, then open a detail page.
 3. Open Keywords & tags, select a phrase, switch to Tags, and select a tag. The daily channel chart and related-category ranking update. Switch Week/Month to change the comparison, then try category watchlists or Opportunity.
 4. Ask a suggested question. Inspect the labeled Rules analyst answer and its numeric evidence.
@@ -221,6 +239,9 @@ No hosting account, paid plan, public URL, or live deployment was created here. 
 
 | Command                                           | Behavior                                                                           |
 | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `npm run collection:status`                       | Inspect real provider observations and logger status                               |
+| `npm run collect:twitchtracker:once`              | Save a due public summary batch without keys                                       |
+| `npm run collection:schedule`                     | Install the Windows recovery schedule                                              |
 | `npm run demo`                                    | Build and serve synthetic data without keys                                        |
 | `npm run check`, `npm run smoke`, `npm run build` | Local verification and production bundle                                           |
 | `npm run report -- --demo`                        | Week/Month ranking and rules explanation from fixtures                             |

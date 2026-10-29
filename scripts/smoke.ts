@@ -17,6 +17,8 @@ try {
     '/api/besttime?game=27471',
     '/api/streamers/rising',
     '/api/reports',
+    '/api/collection',
+    '/api/collection/history?kind=category&key=509658',
     '/admin/health',
   ]) {
     const result = await app.inject({ url });
@@ -33,6 +35,10 @@ try {
   assert.equal(pulse.source, 'synthetic');
   assert.equal(pulse.games.length, 12);
   assert.equal(pulse.range, 'week');
+  const collection = (await app.inject({ url: '/api/collection' })).json();
+  assert.equal(collection.totalSnapshots, 0);
+  assert.equal(collection.items.length, 0);
+  assert.equal((await app.inject('/api/collection/history?kind=channel&key=..%2F..')).statusCode, 400);
   const month = (await app.inject({ url: '/api/pulse?range=month' })).json();
   assert.equal(month.range, 'month');
   assert.notEqual(month.games[0].metric.deltaPct, pulse.games[0].metric.deltaPct);

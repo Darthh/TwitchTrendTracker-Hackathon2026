@@ -32,3 +32,7 @@ CREATE TABLE IF NOT EXISTS analysis_usage (owner TEXT NOT NULL, day INTEGER NOT 
 CREATE INDEX IF NOT EXISTS game_hourly_game_hour ON game_hourly(game_id,hour);
 CREATE INDEX IF NOT EXISTS channel_hourly_channel_hour ON channel_hourly(channel_id,hour);
 CREATE INDEX IF NOT EXISTS streams_channel_started ON streams(channel_id,started_at);
+CREATE TABLE IF NOT EXISTS source_watches (provider TEXT NOT NULL,kind TEXT NOT NULL,entity_key TEXT NOT NULL,label TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,last_attempt INTEGER,last_success INTEGER,last_error TEXT,PRIMARY KEY(provider,kind,entity_key));
+CREATE TABLE IF NOT EXISTS source_snapshots (provider TEXT NOT NULL,kind TEXT NOT NULL,entity_key TEXT NOT NULL,bucket INTEGER NOT NULL,observed_at INTEGER NOT NULL,metrics_json TEXT NOT NULL,source_url TEXT NOT NULL,raw_sha256 TEXT NOT NULL,period TEXT NOT NULL,PRIMARY KEY(provider,kind,entity_key,bucket));
+CREATE INDEX IF NOT EXISTS source_snapshot_history ON source_snapshots(provider,kind,entity_key,observed_at);
+CREATE TABLE IF NOT EXISTS source_collector (provider TEXT PRIMARY KEY,owner TEXT,heartbeat INTEGER,next_due INTEGER NOT NULL DEFAULT 0,last_started INTEGER,last_finished INTEGER,last_success INTEGER,last_error TEXT,successes INTEGER NOT NULL DEFAULT 0,failures INTEGER NOT NULL DEFAULT 0);

@@ -46,6 +46,10 @@ export function Pulse({ filter, setFilter }: { filter: string; setFilter: (filte
           </button>
         ))}
       </nav>
+      <Link to="/data" className="real-data-callout">
+        <span>Real data collection</span> View saved TwitchTracker summaries and collector status{' '}
+        <ArrowUpRight size={15} />
+      </Link>
       <div className="overview-strip">
         <div>
           <Users size={18} />

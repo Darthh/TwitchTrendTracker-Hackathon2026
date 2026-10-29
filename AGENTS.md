@@ -6,6 +6,8 @@ Node 22+; React/Vite, Fastify, SQLite WAL, ECharts. One Node service serves the 
 - `npm run dev` for development; `npm run build && npm start` for live mode.
 - `npm run check` runs TypeScript, ESLint and Vitest. `npm run smoke` checks API contracts in process.
 - `npm run collect:once`, `npm run collect`, `npm run backfill:clips`, `npm run report` operate on live data.
+- The default `/` and `/data` show real TwitchTracker summaries from `data/upswing.db`. `npm run collect:twitchtracker:once` checks the hourly due gate; `npm run collection:schedule` installs the Windows recovery schedule. Follow docs/REAL_DATA.md.
+- Never map rolling provider summaries into concurrent-viewer samples, keyword observations, or synthetic history. Retain source URLs, fetch times, provider-period labels and rate-limit cooldowns. `/pulse` is the full analytics screen; in demo mode it is explicitly synthetic.
 - Read `docs/PROMPT.md` for the user's original specification; `docs/STATUS.md` records evidence and outstanding integrations.
 - Week and Month are the only analysis ranges. Never present clip views as historical concurrent viewers.
 - Keep metrics pure and tested, timestamps UTC, and both absolute and percentage changes visible.

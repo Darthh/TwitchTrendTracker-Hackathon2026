@@ -1,5 +1,6 @@
 import {
   Activity,
+  Database,
   ArrowLeftToLine,
   ArrowUpRight,
   Compass,
@@ -20,7 +21,8 @@ import { Change, Link, Logo } from './components';
 import { compact } from './lib';
 
 const pages = [
-  { name: 'Pulse', path: '/', icon: Activity },
+  { name: 'Real data', path: '/data', icon: Database },
+  { name: 'Pulse', path: '/pulse', icon: Activity },
   { name: 'Categories', path: '/categories', icon: Gamepad2 },
   { name: 'Streamers', path: '/streamers', icon: Users },
   { name: 'Keywords & tags', path: '/keywords', icon: Tags },
@@ -32,26 +34,34 @@ const workspace = [
   { name: 'Alerts', path: '/alerts', icon: Bell },
   { name: 'My Channel', path: '/channel', icon: Video },
 ];
-const matches = (path: string, target: string) => (target === '/' ? path === '/' : path.startsWith(target));
+const matches = (path: string, target: string) =>
+  target === '/data' ? path === '/' || path === '/data' : path.startsWith(target);
 
 export function BrowseNavigation({ path, setRange }: { path: string; setRange: (range: Range) => void }) {
   const { data, range } = useApp();
+  const realPage = path === '/' || path === '/data';
   return (
     <div className="browse-navigation">
       <nav aria-label="Main navigation">
         {pages.map((p) => (
           <Link key={p.path} to={p.path} className={`browse-link ${matches(path, p.path) ? 'active' : ''}`}>
             <p.icon size={16} />
-            <span>{p.name}</span>
+            <span>{p.path === '/pulse' && data.source === 'synthetic' ? 'Demo Pulse' : p.name}</span>
           </Link>
         ))}
       </nav>
       <div className="browse-controls">
-        <span className={`dataset-label ${data.source === 'live' ? 'is-live' : ''}`}>
+        <span
+          className={`dataset-label ${realPage ? 'is-external' : data.source === 'live' ? 'is-live' : ''}`}
+        >
           <i />
-          {data.source === 'synthetic' ? 'Synthetic sample data' : 'Collected Twitch data'}
+          {realPage
+            ? 'Real TwitchTracker summaries'
+            : data.source === 'synthetic'
+              ? 'Synthetic sample data'
+              : 'Collected Twitch data'}
         </span>
-        <div className="range-toggle" aria-label="Analysis range">
+        <div className="range-toggle" aria-label={realPage ? 'Saved history window' : 'Analysis range'}>
           {(['week', 'month'] as Range[]).map((r) => (
             <button
               key={r}
@@ -84,14 +94,15 @@ export function Sidebar({
   setSafe: (safe: boolean) => void;
 }) {
   const { data, watchlist } = useApp();
+  const realPage = path === '/' || path === '/data';
   return (
     <aside
       id="discovery-sidebar"
-      className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}
+      className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${realPage ? 'real-data-sidebar' : ''}`}
       aria-label="Streamer discovery and workspace"
     >
       <div className="sidebar-heading" title="Average viewers and growth over the selected comparison">
-        <span>Rising streamers</span>
+        <span>{realPage ? 'Real data sources' : 'Rising streamers'}</span>
         <button
           className="icon-button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -100,6 +111,12 @@ export function Sidebar({
           <ArrowLeftToLine size={17} />
         </button>
       </div>
+      {realPage && (
+        <p className="sidebar-source-note">
+          TwitchTracker summaries are saved locally. Direct Twitch observations begin once app credentials are
+          configured.
+        </p>
+      )}
       <div className="sidebar-streamers">
         {data.streamers
           .filter((s) => (s.metric.deltaPct ?? 0) > 0)
@@ -151,7 +168,7 @@ export function Sidebar({
           </Link>
         ))}
       </nav>
-      {watchlist.length > 0 && (
+      {!realPage && watchlist.length > 0 && (
         <>
           <div className="sidebar-divider" />
           <div className="sidebar-heading watchlist-title">
