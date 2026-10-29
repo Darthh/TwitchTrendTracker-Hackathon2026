@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "source": "synthetic",
+  "description": "Deterministic fictional analytics fixtures. These are not collected Twitch observations or cached Codex outputs.",
+  "seed": 20261028,
+  "start": "2026-08-25T00:00:00Z",
+  "end": "2026-10-28T00:00:00Z",
+  "resolution": "hourly",
+  "days": 64,
+  "generator": "src/db/seed.ts",
+  "license": "MIT; all illustrations are original SVG geometry"
+}

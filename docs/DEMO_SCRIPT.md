@@ -1,0 +1,20 @@
+# Upswing: three-minute demo plan
+
+This is a shot list, not a record of a video already created. Do not describe sample observations or rules answers as live Twitch data/Codex execution. No copyrighted music or third-party game art is needed. Turn on demo-safe visuals before recording.
+
+| Time      | Picture                                                       | Narration / evidence                                                                                                                                                                                                      |
+| --------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0:00–0:12 | Pulse; visible synthetic-data disclosure                      | “What’s taking off on Twitch, and where can a smaller streamer get found? Upswing brings those questions into one radar.”                                                                                                 |
+| 0:12–0:40 | Week/Month switch; trend cards; card PNG export               | Show signed percent and absolute changes, the sampled platform baseline, and the fact that ranges recompute. Call this the synthetic sample edition.                                                                      |
+| 0:40–1:05 | Market map → Minecraft detail → waterfall                     | “We separate observed supply and audience demand. Anything we can’t attribute stays explicit.” Show the exact bridge and the unknown-driver state; do not invent a news story.                                            |
+| 1:05–1:30 | Opportunity; size 50 then 250; breakdown bars                 | Explain directory rank as an estimate. Show that changing audience size changes recommendations.                                                                                                                          |
+| 1:30–1:52 | Ask “Why is VALORANT down?”; reports                          | Current keyless mode says Rules analyst. Only show a Codex-verified badge if a real isolated API run was successfully recorded and independently verified.                                                                |
+| 1:52–2:12 | Title Lab → My Channel mock chat → OBS browser-source preview | Show that mock chat replies stay in the app; show transparent overlay, not a claimed live broadcast.                                                                                                                      |
+| 2:12–2:40 | Source, AGENTS.md, tests, CODEX_LOG, design audit             | “Codex built the app, helped test the statistics and trust boundaries, and implemented an optional runtime analyst. Here are the checks and the public-token design evidence.” No REA footage was recorded in this build. |
+| 2:40–3:00 | Return to Pulse and your next-category shortlist              | Close on the benefit to smaller streamers. Keep data and runtime limitations visible.                                                                                                                                     |
+
+## Twitch footage still required for the original submission brief
+
+The original brief calls for proof of a working interactive Twitch integration. Before using the video as that proof, configure credentials, name your authorized test channel, collect real data, then record OAuth → title/category diff confirmation → actual twitch.tv update, bot opt-in → an actual chat reply, and overlay in OBS. No live actions were taken in this implementation session. Do not substitute mock chat for proof of Twitch integration.
+
+For real runtime-Codex footage, first validate the deny-read/no-network sandbox on an isolated Linux host with your API account, then record a genuine streamed run and re-query checks. Eight warmed rules answers are not evidence of real Codex runtime output.
