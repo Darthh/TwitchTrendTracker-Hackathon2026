@@ -58,7 +58,7 @@ The browser's **Refresh saved data** button only reads local records. It does no
 npm run collection:schedule
 ```
 
-This registers **Upswing-TwitchTracker-Collection** under the current Windows account with limited privileges and interactive logon. It runs a hidden PowerShell command every 15 minutes and at login. Each invocation checks SQLite's due time, so provider requests remain hourly by default. No Windows password is stored, no elevation is requested, and execution policy is not changed. The first installer invocation also starts the task so its runner can be verified.
+This registers **Upswing-TwitchTracker-Collection** under the current Windows account with limited privileges and interactive logon. Every 15 minutes and at login, Windows Script Host starts PowerShell with its console hidden from process creation, preventing the brief Windows Terminal flash that `-WindowStyle Hidden` alone caused. The launcher waits for the collector and forwards its exit code to Task Scheduler. Each invocation checks SQLite's due time, so provider requests remain hourly by default. No Windows password is stored, no elevation is requested, and execution policy is not changed. The installer also starts the task so its runner can be verified; reinstalling preserves an existing task's trigger times.
 
 The schedule works while the PC is awake, has internet, and that user is logged in. It is not a 24/7 cloud deployment. A missed trigger is eligible to run when available. On login, the task checks again; it does not invent data for missed periods. If the dashboard is also running, a shared database lease and due gate prevent simultaneous provider batches.
 

@@ -1,6 +1,6 @@
 # Implementation and evidence
 
-Updated 2026-10-29, America/Los_Angeles.
+Updated 2026-10-30, America/Los_Angeles.
 
 ## Implemented
 
@@ -55,6 +55,12 @@ Interactive materialization is bounded to 300 categories and 500 growth candidat
 Implemented the no-key TwitchTracker public summary adapter, transactional source/provenance tables, hourly due/cooldown gate, process lease, read-only collection/history endpoints, real-data default home screen and Windows recovery task. Real provider records are kept in `data/upswing.db`, separate from `data/demo.db` and from direct Twitch concurrent-viewer/title/tag tables.
 
 The initial real API batch saved 16 summaries: 12 real categories and four streamers. The production server was restarted against the saved database and displayed all 16 records. The scheduled task's observed run succeeded and respected the not-due gate. TypeScript, ESLint, 67 tests, API smoke and production build passed, as did focused desktop/mobile/theme/source/history browser checks. See [REAL_DATA](REAL_DATA.md) and CODEX_LOG for scope, operation and evidence. No future uptime or cloud deployment is claimed.
+
+## 2026-10-30 scheduled collector console fix
+
+The installed collector task now uses Windows Script Host to create PowerShell with a hidden console from startup. It waits for the collector and returns its exit code. The task remains limited to the logged-in account, retains its original 15-minute/login triggers, and is marked hidden. Reinstalling preserves existing trigger times and recognizes both the previous PowerShell action and the new launcher.
+
+The previous action reproduced a visible Windows Terminal window lasting about 0.78 seconds. During the updated task's observed run at 15:42 Pacific, a 5 ms window observer detected no visible console or Terminal windows; Task Scheduler returned 0 and the collector log recorded a correct not-due skip with no failures. An isolated launcher check preserved a path containing spaces, waited for the child, and returned its nonzero exit code 37. TypeScript, ESLint and all 67 tests passed. This verifies the tested launch; future uptime is not implied.
 
 ## Not externally verified
 
